@@ -17,10 +17,16 @@ backend/embeddings_rrhh.json
 backend/documentos/
 
 # Base de datos local SQLite (logs de consultas)
+# Incluye WAL y SHM: son archivos runtime que regeneran al arrancar el server
+# (la seed de empleados se recrea sola si la tabla esta vacia).
 backend/*.db
 backend/*.db-journal
+backend/*.db-wal
+backend/*.db-shm
 backend/*.sqlite
 backend/*.sqlite-journal
+backend/*.sqlite-wal
+backend/*.sqlite-shm
 
 # Screenshots de QA / Playwright
 *.png
