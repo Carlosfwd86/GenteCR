@@ -1,7 +1,141 @@
 // Landing page for GenteCR — public site
 const { useState: lUseState } = React;
 
-function Landing({ t, onEnter }) {
+function LoginModal({ t, onLogin, onClose }) {
+  const [email, setEmail] = lUseState("");
+  const [password, setPassword] = lUseState("");
+  const [error, setError] = lUseState(false);
+  const [loading, setLoading] = lUseState(false);
+  const [showPwd, setShowPwd] = lUseState(false);
+
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError(false);
+    setLoading(true);
+    setTimeout(() => {
+      const ok = onLogin(email.trim(), password);
+      if (!ok) { setError(true); setLoading(false); }
+    }, 700);
+  };
+
+  return (
+    <div onClick={onClose} style={{
+      position: "fixed", inset: 0, zIndex: 200,
+      background: "rgba(15,23,42,0.5)", backdropFilter: "blur(4px)",
+      display: "flex", alignItems: "center", justifyContent: "center", padding: 24
+    }}>
+      <div onClick={(e) => e.stopPropagation()} style={{
+        background: "var(--paper)", borderRadius: 20,
+        boxShadow: "0 24px 60px -12px rgba(15,23,42,0.35), 0 8px 16px rgba(15,23,42,0.1)",
+        width: "100%", maxWidth: 400, overflow: "hidden",
+        border: "1px solid var(--line)"
+      }}>
+        {/* Header */}
+        <div style={{ padding: "32px 32px 0", textAlign: "center" }}>
+          <Logo size={40} />
+          <h2 style={{ margin: "20px 0 6px", fontSize: 22, fontWeight: 600, letterSpacing: "-0.02em" }}>
+            {t("lang") === "ES" ? "Acceso de Administrador" : "Administrator Access"}
+          </h2>
+          <p className="muted" style={{ margin: 0, fontSize: 13.5 }}>
+            {t("lang") === "ES" ? "Ingresa tus credenciales para continuar" : "Enter your credentials to continue"}
+          </p>
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ padding: "24px 32px 32px", display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink-2)" }}>
+              {t("lang") === "ES" ? "Correo electrónico" : "Email"}
+            </label>
+            <input
+              type="email" required autoFocus
+              value={email} onChange={(e) => { setEmail(e.target.value); setError(false); }}
+              placeholder="marvin@gentecr.com"
+              style={{
+                height: 42, padding: "0 14px", border: `1px solid ${error ? "var(--rose)" : "var(--line)"}`,
+                borderRadius: 10, fontSize: 14, fontFamily: "inherit",
+                background: "var(--bg-2)", color: "var(--ink)", outline: "none",
+                transition: "border-color .15s"
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <label style={{ fontSize: 12.5, fontWeight: 600, color: "var(--ink-2)" }}>
+              {t("lang") === "ES" ? "Contraseña" : "Password"}
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPwd ? "text" : "password"} required
+                value={password} onChange={(e) => { setPassword(e.target.value); setError(false); }}
+                placeholder="••••••••••"
+                style={{
+                  height: 42, padding: "0 42px 0 14px", width: "100%", boxSizing: "border-box",
+                  border: `1px solid ${error ? "var(--rose)" : "var(--line)"}`,
+                  borderRadius: 10, fontSize: 14, fontFamily: "inherit",
+                  background: "var(--bg-2)", color: "var(--ink)", outline: "none",
+                  transition: "border-color .15s"
+                }}
+              />
+              <button type="button" onClick={() => setShowPwd(!showPwd)} style={{
+                position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)",
+                background: "transparent", border: 0, cursor: "pointer", color: "var(--ink-3)", padding: 0
+              }}>
+                {showPwd
+                  ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  : <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                }
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              padding: "10px 14px", borderRadius: 10,
+              background: "var(--rose-soft, #FEE2E2)", color: "#991B1B",
+              fontSize: 13, display: "flex", alignItems: "center", gap: 8
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              {t("lang") === "ES" ? "Correo o contraseña incorrectos" : "Incorrect email or password"}
+            </div>
+          )}
+
+          <button type="submit" disabled={loading} style={{
+            marginTop: 4, height: 44, borderRadius: 10, border: 0,
+            background: loading ? "var(--ink-3)" : "var(--ink)",
+            color: "var(--paper)", fontSize: 14, fontWeight: 600,
+            cursor: loading ? "default" : "pointer", fontFamily: "inherit",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            transition: "background .15s"
+          }}>
+            {loading ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" style={{ animation: "spin 0.8s linear infinite" }}><path d="M21 12a9 9 0 1 1-6.22-8.56"/></svg>
+                {t("lang") === "ES" ? "Verificando…" : "Verifying…"}
+              </>
+            ) : (t("lang") === "ES" ? "Ingresar al dashboard" : "Sign in to dashboard")}
+          </button>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+          <button type="button" onClick={onClose} style={{
+            background: "transparent", border: 0, color: "var(--ink-3)",
+            fontSize: 13, cursor: "pointer", fontFamily: "inherit", marginTop: -4
+          }}>
+            {t("lang") === "ES" ? "Cancelar" : "Cancel"}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function Landing({ t, onEnter, onLogin }) {
+  const [showLogin, setShowLogin] = lUseState(false);
   const stats = [
     { num: "120+", label: t("land.stats.companies") },
     { num: "1.4M", label: t("land.stats.surveys") },
@@ -24,10 +158,11 @@ function Landing({ t, onEnter }) {
           <a href="#precios">{t("lang") === "ES" ? "Precios" : "Pricing"}</a>
         </div>
         <div style={{ marginLeft: "auto", display:"flex", gap: 8 }}>
-          <button className="btn ghost sm">{t("lang") === "ES" ? "Ingresar" : "Sign in"}</button>
+          <button className="btn ghost sm" onClick={() => setShowLogin(true)}>{t("lang") === "ES" ? "Ingresar" : "Sign in"}</button>
           <button className="btn brand sm" onClick={onEnter}>{t("land.cta")}</button>
         </div>
       </div>
+      {showLogin && <LoginModal t={t} onLogin={onLogin} onClose={() => setShowLogin(false)} />}
 
       {/* Hero */}
       <div style={{

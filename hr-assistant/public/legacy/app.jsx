@@ -5,6 +5,10 @@ const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "variant": "editorial"
 }/*EDITMODE-END*/;
 
+const ADMIN_USERS = [
+  { email: "marvin@gentecr.com", password: "Marvin2026#", name: "Marvin Castro", role: "Administrador", initials: "MC", hue: 3 }
+];
+
 function App() {
   const [t_, setTweak] = useTweaks(TWEAK_DEFAULTS);
   const lang = t_.lang === "en" ? "en" : "es";
@@ -12,12 +16,18 @@ function App() {
   const [route, setRoute] = React.useState("landing"); // "landing" | "dashboard" | "surveys" | "announce" | "employees" | "recruit"
   const [drawerEmp, setDrawerEmp] = React.useState(null);
   const [drawerSurvey, setDrawerSurvey] = React.useState(null);
+  const [loggedUser, setLoggedUser] = React.useState(null);
 
   React.useEffect(() => {
     document.documentElement.setAttribute("data-density", t_.density || "regular");
   }, [t_.density]);
 
   const onEnter = () => setRoute("dashboard");
+  const onLogin = (email, password) => {
+    const user = ADMIN_USERS.find(u => u.email === email && u.password === password);
+    if (user) { setLoggedUser(user); setRoute("dashboard"); return true; }
+    return false;
+  };
   const openEmployee = (e) => setDrawerEmp(e);
   const openSurvey = (s) => { setDrawerSurvey(s); setRoute("surveys"); };
 
@@ -36,7 +46,7 @@ function App() {
   if (route === "landing") {
     return (
       <>
-        {renderRoute()}
+        <Landing t={t} onEnter={onEnter} onLogin={onLogin}/>
         <ChatFAB t={t} landing/>
         <TweaksPanelUI t={t} t_={t_} setTweak={setTweak} />
       </>
@@ -46,9 +56,9 @@ function App() {
   // Floating "back to landing" button in app
   return (
     <div className="app">
-      <Sidebar t={t} route={route} setRoute={setRoute} variant={t_.variant}/>
+      <Sidebar t={t} route={route} setRoute={setRoute} variant={t_.variant} user={loggedUser}/>
       <div style={{ position: "relative" }}>
-        <Topbar t={t} route={route} variant={t_.variant} setVariant={(v) => setTweak("variant", v)}/>
+        <Topbar t={t} route={route} variant={t_.variant} setVariant={(v) => setTweak("variant", v)} user={loggedUser} setRoute={setRoute} openEmployee={openEmployee} openSurvey={openSurvey}/>
         {renderRoute()}
         <button onClick={() => setRoute("landing")} style={{
           position: "fixed", bottom: 16, left: 16, zIndex: 50,
