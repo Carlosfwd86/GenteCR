@@ -1,59 +1,46 @@
-// Cliente de "base de datos" simulada: lee public/db.json y busca por keywords.
-// Mantiene la firma del contrato de n8n (respuesta, fuente, confianza /
-// puede_escalar / ok) para que useChat no necesite cambios.
-//
-// TODO Fase 3: reemplazar por fetch real al webhook
-//   - POST `${import.meta.env.VITE_N8N_WEBHOOK_URL}/chat` con { pregunta }
-//   - POST `${import.meta.env.VITE_N8N_WEBHOOK_URL}/escalate` con { pregunta, historial }
+// Cliente de API real: habla con el servidor Express local a través del proxy de Vite.
+// Mantiene exactamente la misma interfaz y firma para que useChat.js funcione sin cambios.
 
-const DB_URL = '/db.json';
-const ESCALATE_DELAY_MS = 600;
-
-// Normaliza a minúsculas y sin tildes para matching laxo.
-function normalize(s) {
-  return String(s ?? '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '');
-}
-
-function randomLatencyMs() {
-  return 400 + Math.floor(Math.random() * 500);
-}
-
-async function loadDb() {
-  const res = await fetch(DB_URL, { cache: 'no-cache' });
-  if (!res.ok) throw new Error(`db.json HTTP ${res.status}`);
-  return res.json();
-}
-
+/**
+ * Envia la consulta al servidor Express para ser procesada por la busqueda por
+ * similitud de coseno y Anthropic Claude.
+ * @param {string} pregunta  Pregunta formulada por el usuario
+ * @returns {Promise<{respuesta: string|null, fuente?: object, confianza?: number, puede_escalar?: boolean}>}
+ */
 export async function askQuestion(pregunta) {
-  const db = await loadDb();
-  const q = normalize(pregunta);
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ pregunta }),
+  });
 
-  const match = db.politicas.find((p) =>
-    p.keywords.some((kw) => q.includes(normalize(kw))),
-  );
-
-  await new Promise((r) => setTimeout(r, randomLatencyMs()));
-
-  if (!match) {
-    return { respuesta: null, puede_escalar: true };
+  if (!response.ok) {
+    throw new Error(`Error del servidor: HTTP ${response.status}`);
   }
 
-  return {
-    respuesta: match.respuesta,
-    fuente: match.fuente,
-    confianza: match.confianza,
-  };
+  return response.json();
 }
 
+/**
+ * Notifica una escalacion de consulta a Recursos Humanos.
+ * @param {string} pregunta  Pregunta original del usuario
+ * @param {Array<{role: string, text: string}>} historial  Historial de la conversacion
+ * @returns {Promise<{ok: boolean}>}
+ */
 export async function escalateToHR(pregunta, historial) {
-  // Lee db.json como validación simbólica. consultas_log y escalaciones
-  // existen como placeholder pero no se mutan (db.json es estático).
-  await loadDb();
-  void pregunta;
-  void historial;
-  await new Promise((r) => setTimeout(r, ESCALATE_DELAY_MS));
-  return { ok: true };
+  const response = await fetch('/api/escalate', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ pregunta, historial }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Error al escalar a RRHH: HTTP ${response.status}`);
+  }
+
+  return response.json();
 }
