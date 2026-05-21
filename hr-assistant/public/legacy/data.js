@@ -79,7 +79,7 @@ const EMPLOYEES = Array.from({length: 48}).map((_, i) => {
   };
 });
 
-// Surveys (recibidas vía Google Forms)
+// Surveys (recibidas vía Microsoft Forms)
 const SURVEYS = [
   {
     id: "PULSE-2026-05",

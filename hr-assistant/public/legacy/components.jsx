@@ -208,26 +208,18 @@ const LikertBar = ({ avg, total = 41 }) => {
 // ---------- Brand mark + logo ----------
 const Logo = ({ size = 28 }) => (
   <div className="brand-mark" style={{ padding: 0, display: "flex", alignItems: "center" }}>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120" style={{ height: size, width: "auto", display: "block" }}>
-      <defs>
-        <path id="gentecr-loop" d="M 60 20 C 64 20, 83 72, 85 84 C 86 92, 74 100, 60 100 C 46 100, 34 92, 35 84 C 37 72, 56 20, 60 20 Z" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </defs>
-      <g>
-        <use href="#gentecr-loop" stroke="#E65A28" strokeWidth="9" transform="rotate(330, 60, 60)" />
-        <use href="#gentecr-loop" stroke="var(--paper, #FFFFFF)" strokeWidth="17" transform="rotate(210, 60, 60)" />
-        <use href="#gentecr-loop" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
-        <use href="#gentecr-loop" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
-        <use href="#gentecr-loop" stroke="currentColor" stroke-width="9" transform="rotate(90, 60, 60)" />
-        <use href="#gentecr-loop" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
-        <use href="#gentecr-loop" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 250" style={{ height: size, width: "auto", display: "block" }}>
+      <g transform="translate(30, 20)">
+        <path d="M 120,40 C 170,30 200,90 190,130 C 180,170 120,200 80,180 C 40,160 70,50 120,40 Z"
+              fill="none" stroke="#2D3134" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M 70,50 C 30,80 25,140 50,170 C 75,200 150,160 170,120 C 190,80 110,20 70,50 Z"
+              fill="none" stroke="#0074C4" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
+        <path d="M 110,25 C 145,25 150,100 135,150 C 120,200 70,210 55,175 C 40,140 75,25 110,25 Z"
+              fill="none" stroke="#F15A24" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round"/>
       </g>
       <g fill="currentColor">
-        <text x="130" y="73" fontFamily="var(--font-display), 'DM Sans', sans-serif" fontSize="70" letterSpacing="-0.02em">
-          <tspan fontWeight="300" opacity="0.9">Gente</tspan><tspan fontWeight="700">CR</tspan>
-        </text>
-        <text x="132" y="98" fontFamily="var(--font-display), 'DM Sans', sans-serif" fontSize="16" fontWeight="600" letterSpacing="0.09em" opacity="0.75">
-          MENOS PANTALLAS, MÁS CONVERSACIONES
-        </text>
+        <text x="245" y="155" fontFamily="'Segoe UI', var(--font-display), 'DM Sans', sans-serif" fontWeight="400" fontSize="115">GenteCR</text>
+        <text x="250" y="200" fontFamily="'Segoe UI', var(--font-display), 'DM Sans', sans-serif" fontWeight="600" fontSize="29" letterSpacing="1">MENOS PANTALLAS, MÁS CONVERSACIONES</text>
       </g>
     </svg>
   </div>

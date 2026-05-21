@@ -16,7 +16,7 @@ function Landing({ t, onEnter }) {
     <div className="land" data-screen-label="01 Landing pública">
       {/* Nav */}
       <div className="land-nav">
-        <Logo size={38} />
+        <Logo size={53} />
         <div style={{ display:"flex", gap: 22, marginLeft: 24 }}>
           <a href="#producto">{t("lang") === "ES" ? "Producto" : "Product"}</a>
           <a href="#beneficios">{t("lang") === "ES" ? "Beneficios" : "Why us"}</a>
@@ -206,7 +206,7 @@ function Landing({ t, onEnter }) {
           <div style={{ borderLeft: "1px solid rgba(246,241,232,0.15)", paddingLeft: 32 }}>
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 14 }}>
               {[
-                t("lang") === "ES" ? "Integración con Google Forms en 5 minutos" : "Google Forms integration in 5 minutes",
+                t("lang") === "ES" ? "Integración con Microsoft Forms en 5 minutos" : "Microsoft Forms integration in 5 minutes",
                 t("lang") === "ES" ? "Hasta 200 personas en el plan Inicial" : "Up to 200 people on the Starter plan",
                 t("lang") === "ES" ? "Onboarding asistido por una persona real" : "Onboarding assisted by a real person",
                 t("lang") === "ES" ? "Datos en LATAM, no salen de la región" : "LATAM-based data, never leaves the region"

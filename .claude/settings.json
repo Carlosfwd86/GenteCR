@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npx vite *)",
+      "Bash(Get-Content \"C:\\\\Users\\\\cajr1\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-cajr1-Desktop-Dashboard-RRHH\\\\8ebcea64-4b16-4357-a4ed-f385417e0cad\\\\tasks\\\\b37k9u3r5.output\")"
+    ]
+  }
+}
