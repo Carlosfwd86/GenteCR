@@ -117,42 +117,117 @@ function findTopKChunks(queryVector, topK = TOP_K) {
 // Incluye reglas de escritura humana embebidas (skill "humanizer"
 // adaptada para correr al momento de generación, no en post-proceso).
 
-const SYSTEM_PROMPT = `Sos un asistente virtual de Recursos Humanos de Garnier & Garnier, amable y profesional.
+let availableDocumentsList = '';
 
-Tu función es responder preguntas de los empleados sobre políticas internas de la empresa, trámites, beneficios, procesos de RRHH y temas laborales, basándote ÚNICAMENTE en la información del contexto proporcionado.
+function updateAvailableDocuments() {
+  if (embeddingsDB.length === 0) {
+    availableDocumentsList = '(No hay documentos cargados en el sistema)';
+    return;
+  }
+  const uniqueSources = [...new Set(embeddingsDB.map(chunk => chunk.source))];
+  availableDocumentsList = uniqueSources
+    .map(s => {
+      const cleanName = s
+        .replace(/\.pdf$/i, '')
+        .replace(/_/g, ' ');
+      return '- ' + cleanName + ' (Archivo: ' + s + ')';
+    })
+    .join('\n');
+}
 
-REGLAS FUNDAMENTALES:
-1. Responde siempre en español rioplatense neutro, claro y conciso.
-2. Usa SOLO la información del contexto delimitado por <contexto></contexto>.
-3. Si la información no está en el contexto, NO la inventes ni especules.
-4. Sé empático y profesional. Hablale al empleado como una persona, no como un manual.
-5. Podés usar listas o puntos cuando aporten claridad, pero no abuses.
+// Inicializar la lista de documentos disponibles de inmediato
+updateAvailableDocuments();
 
-DATOS DE EMPLEADOS:
-Si la pregunta es sobre un empleado específico mencionado por nombre (ej: "¿cuántas vacaciones tiene Lucas Méndez?", "¿qué puesto tiene Carlos Mora?"), llamá a la herramienta get_employee_info con su nombre. Si la herramienta devuelve null o un error, respondé que no encontraste ese empleado y sugerí consultar con RH directamente. NO inventes datos sobre empleados que no estén en la respuesta de la herramienta. Esta herramienta es SOLO para datos individuales de personas; NO la uses para preguntas generales sobre políticas.
+function getSystemPrompt() {
+  const docList = availableDocumentsList || '(No hay documentos cargados)';
 
-CÓMO ESCRIBÍS (reglas para sonar humano, no como IA genérica):
-- No uses guiones largos (—). Si necesitás separar ideas, usá punto, coma o paréntesis.
-- Evitá la "regla de tres" (frases en grupos de tres elementos paralelos). Si tenés tres puntos, escribilos en oraciones distintas o reducí a dos.
-- Evitá vocabulario hinchado tipo "delve", "tapestry", "moreover", "furthermore", "in essence", "navigate", "leverage", "robust", "seamless", "holistic", "synergy". Si en español aparecen "profundizar", "navegar", "aprovechar", "robusto", "holístico", "sinergia", reformulá con palabras corrientes.
-- Evitá frases de transición vacías tipo "Es importante destacar que", "Cabe mencionar que", "En el mundo actual", "En conclusión".
-- No abras con "¡Hola!" ni con un saludo si el usuario no saludó. Andá directo a la respuesta.
-- No cierres con coletillas tipo "¿Hay algo más en lo que pueda ayudarte?" salvo que tenga sentido en el contexto.
-- Preferí voz activa sobre pasiva. "El empleado debe solicitar" antes que "Debe ser solicitado por el empleado".
-- No uses negaciones paralelas decorativas tipo "no es solo X, sino también Y". Decí directo lo que es.
-- Evitá adjetivos vagos tipo "crucial", "fundamental", "esencial" cuando no aportan nada.
+  // Obtener la fecha y hora actual en la zona horaria de Costa Rica (Garnier & Garnier)
+  const currentDateCR = new Date().toLocaleDateString('es-CR', {
+    timeZone: 'America/Costa_Rica',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const currentTimeCR = new Date().toLocaleTimeString('es-CR', {
+    timeZone: 'America/Costa_Rica',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
 
-REGLA DE ESCALACIÓN — MUY IMPORTANTE:
-ANTES de escalar, verificá si la pregunta es sobre un empleado específico mencionado por nombre. Si lo es, primero llamá a la herramienta get_employee_info y respondé con esos datos. NO escales preguntas sobre empleados individuales sin haber intentado la herramienta primero.
-
-Si ocurre CUALQUIERA de estas situaciones (y la herramienta no aplica o ya la usaste sin éxito), responde ÚNICAMENTE con la palabra "[HUMAN_ESCALATION]" (sin más texto):
-- La respuesta a la pregunta no se encuentra en el contexto proporcionado NI puede obtenerse con la herramienta get_employee_info.
-- El usuario pide explícitamente hablar con una persona, un agente o el equipo de RRHH.
-- El tema involucra situaciones delicadas como: despidos, acoso laboral, problemas de salud grave, conflictos interpersonales, denuncias, o situaciones de emergencia.
-- El usuario expresa frustración significativa o pide ayuda urgente que no puedes resolver.
-- La pregunta requiere una decisión o aprobación que solo RRHH puede dar.
-
-No agregues explicaciones adicionales cuando escales. Solo responde: [HUMAN_ESCALATION]`;
+  return [
+    'Sos un asistente virtual de Recursos Humanos de Garnier & Garnier, amable, empatico y altamente profesional.',
+    'Tu funcion es responder preguntas de los empleados sobre politicas internas de la empresa, tramites, beneficios, procesos de RRHH y temas laborales, basandote en el contexto proporcionado y en la lista de documentos.',
+    '',
+    '--- CONTEXTO TEMPORAL ACTUAL (CRITICO) ---',
+    `Fecha actual de hoy: ${currentDateCR}`,
+    `Hora actual en Costa Rica: ${currentTimeCR}`,
+    'Usa esta informacion temporal para situar correctamente las consultas en el tiempo. Por ejemplo, si el usuario pregunta sobre traslados de feriados de este ano, considera que el ano en curso es el indicado arriba.',
+    '',
+    '--- INVENTARIO DE DOCUMENTOS DISPONIBLES ---',
+    'En nuestra base de datos contamos con los siguientes documentos oficiales:',
+    docList,
+    '',
+    '--- REGLAS FUNDAMENTALES ---',
+    '1. Responde siempre en español rioplatense neutro, claro y conciso.',
+    '2. Usa SOLO la informacion del contexto delimitado por <contexto></contexto>.',
+    '3. Si la informacion no esta en el contexto, NO la inventes ni especules.',
+    '4. Se empatico y profesional. Hablale al empleado como una persona, no como un manual.',
+    '5. Podes usar listas o puntos cuando aporten claridad, pero no abuses.',
+    '6. SALUDOS Y CORTESIA: Si el usuario te saluda, agradece o se despide (ej. "Hola", "Buenos dias", "Gracias", "Adios"), responde de forma natural, cordial y profesional. No requieres contexto para estas interacciones.',
+    '7. ASOCIACION SEMANTICA INTELIGENTE: Relaciona conceptos sinonimos de manera inteligente. Por ejemplo:',
+    '   - "Dia del trabajador", "Primero de mayo" o "1 de mayo" = feriados obligatorios en el Codigo de Trabajo.',
+    '   - "Ropa", "vestirse", "uniforme" = Politica de Codigo de vestimenta.',
+    '   - "Viaje", "transporte", "hospedaje", "hotel" = Politica de viaticos.',
+    '   - "Acoso", "bullying", "maltrato", "hostigamiento" = Politica contra el Hostigamiento.',
+    '   - "Teletrabajo", "trabajo remoto", "home office" = Politica de teletrabajo.',
+    '8. SINTESIS Y CONSULTAS GENERALES: Si el usuario pide un resumen general (ej. "resumeme las politicas" o "que politicas hay?"), DEBES:',
+    '   a) Listar TODOS los documentos del INVENTARIO DE DOCUMENTOS DISPONIBLES.',
+    '   b) Para los documentos presentes en el <contexto>, proporciona un breve resumen de 1-2 lineas.',
+    '   c) Para los demas documentos del inventario no presentes en el contexto, mencionalos e indica que el usuario puede preguntarte especificamente sobre ellos.',
+    '9. PREGUNTAS FUERA DE TEMA: Si el usuario pregunta sobre temas no laborales (ej. "escribe codigo Python", "quien descubrio America"), responde amablemente que eres un asistente de RRHH y solo puedes ayudar con temas de la empresa y legislacion laboral. NO escales a humano en estos casos.',
+    '',
+    'DATOS DE EMPLEADOS:',
+    'Si la pregunta es sobre un empleado especifico mencionado por nombre (ej: "¿cuantas vacaciones tiene Lucas Mendez?", "¿que puesto tiene Carlos Mora?"), llama a la herramienta get_employee_info con su nombre. Si la herramienta devuelve null o un error, responde que no encontraste ese empleado y sugiere consultar con RRHH directamente. NO inventes datos sobre empleados que no esten en la respuesta de la herramienta. Esta herramienta es SOLO para datos individuales de personas; NO la uses para preguntas generales sobre politicas.',
+    '',
+    'COMO ESCRIBIS (reglas para sonar humano, no como IA generica):',
+    '- No uses guiones largos (—). Si necesitas separar ideas, usa punto, coma o parentesis.',
+    '- Evita la "regla de tres" (frases en grupos de tres elementos paralelos). Si tienes tres puntos, escribilos en oraciones distintas o reduci a dos.',
+    '- Evita vocabulario hinchado tipo "delve", "tapestry", "moreover", "furthermore", "in essence", "navigate", "leverage", "robust", "seamless", "holistic", "synergy". Si en español aparecen "profundizar", "navegar", "aprovechar", "robusto", "holistico", "sinergia", reformula con palabras corrientes.',
+    '- Evita frases de transicion vacias tipo "Es importante destacar que", "Cabe mencionar que", "En el mundo actual", "En conclusion".',
+    '- No abras con "¡Hola!" ni con un saludo si el usuario no saludo. Anda directo a la respuesta.',
+    '- No cierres con coletillas tipo "¿Hay algo mas en lo que pueda ayudarte?" salvo que tenga sentido en el contexto.',
+    '- Preferi voz activa sobre pasiva. "El empleado debe solicitar" antes que "Debe ser solicitado por el empleado".',
+    '- No uses negaciones paralelas decorativas tipo "no es solo X, sino tambien Y". Deci directo lo que es.',
+    '- Evita adjetivos vagos tipo "crucial", "fundamental", "esencial" cuando no aportan nada.',
+    '',
+    '--- REGLAS ESTRICTAS DE FORMATO (CHAT EN TEXTO PLANO) ---',
+    'La interfaz de chat de usuario NO renderiza Markdown. Por lo tanto, para garantizar una lectura facil, clara y amigable:',
+    '- CONCISION AL GRANO: Ve directo al punto sin rodeos, introducciones innecesarias o conclusiones repetitivas.',
+    '- ADAPTACION DE LONGITUD DINAMICA: Analiza la complejidad de la pregunta para modular la longitud de la respuesta:',
+    '  * PREGUNTAS SIMPLES/DIRECTAS (ej. "¿Cuanto es el subsidio?", "¿Cual es el horario?"): Responde con un parrafo de 2 a 4 lineas que contenga el dato exacto de forma clara y directa.',
+    '  * PREGUNTAS COMPLEJAS/DETALLADAS (ej. "Resume la politica", "¿Cuales son los requisitos para X?"): Utiliza viñetas cortas y estructuradas, explicando de forma completa pero muy resumida y sin redundancias.',
+    '- NUNCA uses asteriscos (** ni *) para negrita o cursiva. Escribe las palabras importantes en MAYUSCULAS o entre comillas simples si necesitas enfatizarlas.',
+    '- NUNCA uses tablas de Markdown (con tuberias | o guiones ---). En su lugar, presenta cualquier dato tabular como una lista limpia de puntos de viñeta usando guiones (ej. "- 1 de enero: Ano Nuevo").',
+    '- NUNCA uses simbolos de numeral (#, ##, ###) para titulos. Usa textos cortos en MAYUSCULAS para separar secciones o temas.',
+    '- Deja espacios (lineas en blanco dobles) entre parrafos para que el texto respire.',
+    '- Utiliza emojis de forma amigable (ej. 😊, 📅, ⚠️, 💡) para hacer la lectura mas amena y dinamica.',
+    '- Estructura las respuestas de manera muy simple y directa. Evita bloques de texto gigantescos.',
+    '',
+    '--- REGLAS DE ESCALACION A HUMANO (CRITICA) ---',
+    'Si ocurre cualquiera de estas situaciones:',
+    '- La respuesta a la pregunta no se encuentra en el contexto proporcionado NI puede obtenerse con la herramienta get_employee_info.',
+    '- El usuario pide explícitamente hablar con una persona, un agente o el equipo de RRHH.',
+    '- El tema involucra situaciones delicadas como: despidos, acoso laboral, problemas de salud grave, conflictos interpersonales, denuncias, o situaciones de emergencia.',
+    '- El usuario expresa frustración significativa o pide ayuda urgente que no puedes resolver.',
+    '- La pregunta requiere una decisión o aprobación que solo RRHH puede dar.',
+    '',
+    'DEBES redactar una respuesta sumamente empática, cálida y profesional, explicando de manera humana que la consulta es delicada o requiere la atención personalizada de un especialista del equipo de Recursos Humanos para brindarle el mejor soporte de forma confidencial. Al final de tu mensaje, en una nueva línea, DEBES escribir exactamente el tag "[HUMAN_ESCALATION]":',
+    'Por ejemplo: "Entiendo completamente que estás pasando por un momento sumamente difícil y estresante con esta situación. Quiero asegurarme de que recibas la atención y el apoyo adecuado. Debido a la naturaleza delicada de este tema, es importante que sea atendido directamente y con total confidencialidad por un especialista de nuestro equipo de Recursos Humanos.\n\n[HUMAN_ESCALATION]"',
+    '',
+    'RECUERDA: Si vas a escalar, redacta primero tu respuesta cálida y empática explicándole al empleado que lo derivarás a Recursos Humanos, y luego finaliza siempre en una nueva línea con el tag exacto: [HUMAN_ESCALATION]'
+  ].join('\n');
+}
 
 // ── Tools (Anthropic tool use) ────────────────────────────────
 
@@ -175,21 +250,17 @@ const TOOLS = [
 ];
 
 /**
- * Formatea el resultado de getEmployeeInfo como texto legible para Claude.
- * Si el empleado no se encontró (emp == null), devuelve un mensaje claro
- * para que Claude responda apropiadamente.
+ * Formatea el resultado de db.getEmployeeInfo como texto legible para el modelo.
+ * El modelo lee mejor texto natural que JSON crudo.
  */
 function formatEmployeeResult(emp) {
-  if (!emp) {
-    return 'Empleado no encontrado en la base de datos de Garnier & Garnier.';
-  }
-  const parts = [
+  if (!emp) return 'Empleado no encontrado en la base interna de Garnier & Garnier.';
+  return [
     `${emp.nombre} — ${emp.puesto}.`,
     `Ingresó el ${emp.fecha_ingreso}.`,
     `Vacaciones disponibles: ${emp.vacaciones_disponibles} días.`,
     `Vacaciones tomadas este año: ${emp.vacaciones_tomadas} días.`,
-  ];
-  return parts.join(' ');
+  ].join(' ');
 }
 
 /**
@@ -210,7 +281,7 @@ async function callClaudeWithTools(messages) {
     const completion = await anthropic.messages.create({
       model: CHAT_MODEL,
       max_tokens: 1024,
-      system: SYSTEM_PROMPT,
+      system: getSystemPrompt(),
       tools: TOOLS,
       messages: convo,
     });
@@ -274,35 +345,54 @@ function needsEscalation(response) {
 }
 
 /**
- * Maneja la escalación: registra alerta en consola y genera mensaje para el usuario.
- * @param {string} userMessage  Mensaje original del usuario
- * @returns {string}  Mensaje amable para el usuario
+ * Normaliza y valida el historial para cumplir con las reglas del SDK de Anthropic (roles alternados).
  */
-function handleEscalation(userMessage) {
-  const timestamp = new Date().toLocaleString('es-CR', { timeZone: 'America/Costa_Rica' });
+function sanitizeMessagesForAnthropic(history, currentMessage) {
+  const cleaned = [];
 
-  // Simular alerta/notificación al equipo de RRHH
-  console.log('\n' + '='.repeat(60));
-  console.log('🚨 ALERTA DE ESCALACIÓN — RRHH Requerido');
-  console.log('='.repeat(60));
-  console.log(`⏰ Hora: ${timestamp}`);
-  console.log(`💬 Consulta del usuario: "${userMessage}"`);
-  console.log(`📧 Notificando a RRHH... (En producción: enviar email/Slack/ticket)`);
-  console.log('='.repeat(60) + '\n');
+  // Mapear historial
+  for (const turn of history) {
+    const role = turn.role === 'bot' || turn.role === 'assistant' ? 'assistant' : 'user';
+    const text = turn.text || turn.content || '';
+    if (text.trim() !== '') {
+      cleaned.push({ role, content: text });
+    }
+  }
 
-  return 'Entiendo tu consulta y quiero asegurarme de que recibas la mejor atención posible. Este tema requiere la atención directa de nuestro equipo de Recursos Humanos. 🤝\n\nHe notificado a un agente de RRHH y se pondrá en contacto contigo a la brevedad. Si es urgente, puedes contactarlos directamente al correo **rrhh@empresa.com** o al interno **1234**.\n\n¿Hay algo más en lo que pueda ayudarte mientras tanto?';
+  // Agregar mensaje actual
+  cleaned.push(currentMessage);
+
+  // Asegurar roles alternados combinando mensajes consecutivos del mismo rol
+  const alternating = [];
+  for (const msg of cleaned) {
+    if (alternating.length > 0 && alternating[alternating.length - 1].role === msg.role) {
+      alternating[alternating.length - 1].content += '\n' + msg.content;
+    } else {
+      alternating.push(msg);
+    }
+  }
+
+  // Anthropic requiere que el primer mensaje sea del rol 'user'
+  while (alternating.length > 0 && alternating[0].role !== 'user') {
+    alternating.shift();
+  }
+
+  return alternating;
 }
 
 // ── Endpoint Principal: /chat ─────────────────────────────────
 
 app.post('/chat', async (req, res) => {
-  const { message, history = [] } = req.body;
+  // Acepta 'pregunta' (GenteCR frontend) o 'message' (formato original)
+  const userMessage = req.body.pregunta || req.body.message;
+  // Acepta 'historial' (GenteCR frontend) o 'history' (formamo original)
+  const clientHistory = req.body.historial || req.body.history || [];
 
-  if (!message || typeof message !== 'string' || message.trim() === '') {
-    return res.status(400).json({ error: 'El campo "message" es requerido.' });
+  if (!userMessage || typeof userMessage !== 'string' || userMessage.trim() === '') {
+    return res.status(400).json({ error: 'El campo "pregunta" o "message" es requerido.' });
   }
 
-  const userMessage = message.trim();
+  const queryText = userMessage.trim();
 
   // 1. Verificar que haya embeddings cargados
   if (embeddingsDB.length === 0) {
@@ -317,50 +407,48 @@ app.post('/chat', async (req, res) => {
     // 2. Vectorizar la consulta del usuario
     const embeddingResponse = await openai.embeddings.create({
       model: EMBEDDING_MODEL,
-      input: userMessage,
+      input: queryText,
     });
     const queryVector = embeddingResponse.data[0].embedding;
 
     // 3. Buscar los chunks más relevantes por similitud del coseno
     const topChunks = findTopKChunks(queryVector, TOP_K);
 
+    // Si no hay chunks o la similitud es baja (< 0.25), igual enviamos a Claude con contexto vacio
+    // para que pueda responder empáticamente y decidir si escala con su propio criterio.
+    const similarityOk = topChunks.length > 0 && topChunks[0].score >= 0.25;
+    if (!similarityOk) {
+      console.log('Similitud baja o nula (' + (topChunks[0] ? topChunks[0].score.toFixed(3) : 0) + '). Dejando que Claude decida si escala.');
+    }
+
     // 4. Construir el contexto para el modelo
-    const contexto = topChunks
-      .map((chunk, i) => `[Fuente ${i + 1}: ${chunk.source} | Relevancia: ${(chunk.score * 100).toFixed(1)}%]\n${chunk.text}`)
-      .join('\n\n---\n\n');
+    const contexto = similarityOk
+      ? topChunks
+          .map((chunk, i) => `[Fuente ${i + 1}: ${chunk.source} | Relevancia: ${(chunk.score * 100).toFixed(1)}%]\n${chunk.text}`)
+          .join('\n\n---\n\n')
+      : '(No hay informacion de contexto relevante disponible en la base de datos para esta pregunta)';
 
-    // 5. Construir el historial de conversación para Claude.
-    //    Anthropic separa system del array de messages. Los roles válidos
-    //    son 'user' y 'assistant'; nada de 'system' en messages.
-    //    Normalizamos el history por si el frontend manda roles legacy.
-    const normalizedHistory = history
-      .slice(-10)
-      .filter(turn => turn && turn.content)
-      .map(turn => ({
-        role: turn.role === 'assistant' || turn.role === 'bot' ? 'assistant' : 'user',
-        content: String(turn.content),
-      }));
+    // 5. Formatear y sanitizar mensajes para Anthropic Claude
+    const currentMessage = {
+      role: 'user',
+      content: `<contexto>\n${contexto}\n</contexto>\n\nPregunta del empleado: ${queryText}`,
+    };
 
-    const messages = [
-      ...normalizedHistory,
-      // Mensaje actual con contexto RAG inyectado
-      {
-        role: 'user',
-        content: `<contexto>\n${contexto}\n</contexto>\n\nPregunta del empleado: ${userMessage}`,
-      },
-    ];
+    const messages = sanitizeMessagesForAnthropic(clientHistory, currentMessage);
 
     // 6. Llamar a Claude Haiku 4.5 con tool use habilitado
     const { rawResponse, usedEmployeeTool } = await callClaudeWithTools(messages);
 
     // 7. Detectar si requiere escalación humana
     if (needsEscalation(rawResponse)) {
-      const escalationMessage = handleEscalation(userMessage);
+      console.log('Claude indico [HUMAN_ESCALATION]. Retornando respuesta empatica para escalado.');
+      const cleanResponse = rawResponse.replace(ESCALATION_TAG, '').trim();
       const latencyMs = Date.now() - startedAt;
+
       try {
         db.logConsulta({
-          pregunta: userMessage,
-          respuesta: escalationMessage,
+          pregunta: queryText,
+          respuesta: cleanResponse || 'Se requiere escalacion a un especialista de RRHH.',
           escalated: true,
           sources: [],
           topScore: topChunks[0]?.score ?? null,
@@ -370,10 +458,14 @@ app.post('/chat', async (req, res) => {
       } catch (logErr) {
         console.error('⚠️  logConsulta (escalated) falló:', logErr.message);
       }
+
       return res.json({
-        reply: escalationMessage,
+        reply: cleanResponse || 'Este tema requiere la atención directa de nuestro equipo de Recursos Humanos. 🤝 He notificado a un agente de RRHH y se pondrá en contacto contigo a la brevedad.',
+        respuesta: cleanResponse || 'Este tema requiere la atención directa de nuestro equipo de Recursos Humanos. 🤝 He notificado a un agente de RRHH y se pondrá en contacto contigo a la brevedad.',
         escalated: true,
+        puede_escalar: true,
         sources: [],
+        topScore: topChunks[0]?.score ?? null
       });
     }
 
@@ -384,7 +476,7 @@ app.post('/chat', async (req, res) => {
 
     try {
       db.logConsulta({
-        pregunta: userMessage,
+        pregunta: queryText,
         respuesta: rawResponse,
         escalated: false,
         sources,
@@ -396,11 +488,22 @@ app.post('/chat', async (req, res) => {
       console.error('⚠️  logConsulta falló:', logErr.message);
     }
 
+    const topChunk = topChunks[0];
+    const fuente = topChunk ? {
+      doc: topChunk.source.replace(/\.pdf$/i, ''),
+      seccion: 'Seccion de ' + topChunk.source.replace(/\.pdf$/i, ''),
+      pagina: topChunk.chunkIndex + 1
+    } : null;
+
     return res.json({
       reply: rawResponse,
+      respuesta: rawResponse,
       escalated: false,
+      puede_escalar: false,
       sources,
-      topScore,
+      fuente,
+      confianza: topScore,
+      topScore
     });
 
   } catch (err) {
@@ -409,7 +512,6 @@ app.post('/chat', async (req, res) => {
     if (err.stack) process.stderr.write(err.stack + '\n');
 
     // Distinguir errores de API vs errores internos.
-    // 401 puede venir de OpenAI (embeddings) o Anthropic (chat).
     if (err.status === 401) {
       return res.status(500).json({
         error: 'API key inválida. Verificá OPENAI_API_KEY y ANTHROPIC_API_KEY en el .env.',
