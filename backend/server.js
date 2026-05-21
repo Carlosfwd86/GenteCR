@@ -16,6 +16,8 @@ const Anthropic = require('@anthropic-ai/sdk');
 // la setea para su CLI), dotenv no la pisa y el server usa la del shell.
 require('dotenv').config({ override: true });
 
+const db = require('./db.js');
+
 const app = express();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
@@ -34,6 +36,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://127.0.0.1:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
   ],
 }));
 app.use(express.json());
@@ -124,6 +128,9 @@ REGLAS FUNDAMENTALES:
 4. Sé empático y profesional. Hablale al empleado como una persona, no como un manual.
 5. Podés usar listas o puntos cuando aporten claridad, pero no abuses.
 
+DATOS DE EMPLEADOS:
+Si la pregunta es sobre un empleado específico mencionado por nombre (ej: "¿cuántas vacaciones tiene Lucas Méndez?", "¿qué puesto tiene Carlos Mora?"), llamá a la herramienta get_employee_info con su nombre. Si la herramienta devuelve null o un error, respondé que no encontraste ese empleado y sugerí consultar con RH directamente. NO inventes datos sobre empleados que no estén en la respuesta de la herramienta. Esta herramienta es SOLO para datos individuales de personas; NO la uses para preguntas generales sobre políticas.
+
 CÓMO ESCRIBÍS (reglas para sonar humano, no como IA genérica):
 - No uses guiones largos (—). Si necesitás separar ideas, usá punto, coma o paréntesis.
 - Evitá la "regla de tres" (frases en grupos de tres elementos paralelos). Si tenés tres puntos, escribilos en oraciones distintas o reducí a dos.
@@ -136,14 +143,118 @@ CÓMO ESCRIBÍS (reglas para sonar humano, no como IA genérica):
 - Evitá adjetivos vagos tipo "crucial", "fundamental", "esencial" cuando no aportan nada.
 
 REGLA DE ESCALACIÓN — MUY IMPORTANTE:
-Si ocurre CUALQUIERA de estas situaciones, responde ÚNICAMENTE con la palabra "[HUMAN_ESCALATION]" (sin más texto):
-- La respuesta a la pregunta no se encuentra en el contexto proporcionado.
+ANTES de escalar, verificá si la pregunta es sobre un empleado específico mencionado por nombre. Si lo es, primero llamá a la herramienta get_employee_info y respondé con esos datos. NO escales preguntas sobre empleados individuales sin haber intentado la herramienta primero.
+
+Si ocurre CUALQUIERA de estas situaciones (y la herramienta no aplica o ya la usaste sin éxito), responde ÚNICAMENTE con la palabra "[HUMAN_ESCALATION]" (sin más texto):
+- La respuesta a la pregunta no se encuentra en el contexto proporcionado NI puede obtenerse con la herramienta get_employee_info.
 - El usuario pide explícitamente hablar con una persona, un agente o el equipo de RRHH.
 - El tema involucra situaciones delicadas como: despidos, acoso laboral, problemas de salud grave, conflictos interpersonales, denuncias, o situaciones de emergencia.
 - El usuario expresa frustración significativa o pide ayuda urgente que no puedes resolver.
 - La pregunta requiere una decisión o aprobación que solo RRHH puede dar.
 
 No agregues explicaciones adicionales cuando escales. Solo responde: [HUMAN_ESCALATION]`;
+
+// ── Tools (Anthropic tool use) ────────────────────────────────
+
+const TOOLS = [
+  {
+    name: 'get_employee_info',
+    description:
+      'Consulta información de un empleado de Garnier & Garnier por su nombre. Devuelve nombre, puesto, fecha de ingreso, vacaciones disponibles y tomadas. Usar SOLO cuando la pregunta del usuario menciona explícitamente el nombre de una persona y necesitás datos individuales (saldo de vacaciones, puesto, etc). NO usar para preguntas generales sobre políticas.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        nombre: {
+          type: 'string',
+          description: 'Nombre o parte del nombre del empleado a buscar',
+        },
+      },
+      required: ['nombre'],
+    },
+  },
+];
+
+/**
+ * Formatea el resultado de db.getEmployeeInfo como texto legible para el modelo.
+ * El modelo lee mejor texto natural que JSON crudo.
+ */
+function formatEmployeeResult(emp) {
+  if (!emp) return 'Empleado no encontrado en la base interna de Garnier & Garnier.';
+  return [
+    `${emp.nombre} — ${emp.puesto}.`,
+    `Ingresó el ${emp.fecha_ingreso}.`,
+    `Vacaciones disponibles: ${emp.vacaciones_disponibles} días.`,
+    `Vacaciones tomadas este año: ${emp.vacaciones_tomadas} días.`,
+  ].join(' ');
+}
+
+/**
+ * Loop de tool use con Claude. Permite hasta MAX_TOOL_ITER iteraciones para
+ * encadenar consultas, pero en la práctica una sola pasada alcanza para el
+ * caso simple de get_employee_info.
+ *
+ * @param {Array} messages  Mensajes iniciales (user/assistant)
+ * @returns {Promise<{rawResponse: string, usedEmployeeTool: boolean}>}
+ */
+async function callClaudeWithTools(messages) {
+  const MAX_TOOL_ITER = 3;
+  // Trabajamos sobre una copia para no mutar el array del caller.
+  const convo = [...messages];
+  let usedEmployeeTool = false;
+
+  for (let iter = 0; iter < MAX_TOOL_ITER; iter++) {
+    const completion = await anthropic.messages.create({
+      model: CHAT_MODEL,
+      max_tokens: 1024,
+      system: SYSTEM_PROMPT,
+      tools: TOOLS,
+      messages: convo,
+    });
+
+    // Si el modelo no pidió tools, salimos con el texto.
+    if (completion.stop_reason !== 'tool_use') {
+      const text = completion.content.find(b => b.type === 'text')?.text ?? '';
+      return { rawResponse: text, usedEmployeeTool };
+    }
+
+    // El modelo pidió al menos una tool. Agregamos su turno completo
+    // (texto + tool_use blocks) al historial y respondemos con tool_result.
+    convo.push({ role: 'assistant', content: completion.content });
+
+    const toolUseBlocks = completion.content.filter(b => b.type === 'tool_use');
+    const toolResults = [];
+
+    for (const block of toolUseBlocks) {
+      let resultText;
+      if (block.name === 'get_employee_info') {
+        usedEmployeeTool = true;
+        try {
+          const emp = db.getEmployeeInfo(block.input?.nombre);
+          resultText = formatEmployeeResult(emp);
+        } catch (err) {
+          process.stderr.write(`⚠️  Tool get_employee_info falló: ${err.message}\n`);
+          resultText = 'Error consultando la base interna de empleados.';
+        }
+      } else {
+        // Tool desconocida — no debería pasar con un solo tool registrado.
+        resultText = `Tool no implementada: ${block.name}`;
+      }
+
+      toolResults.push({
+        type: 'tool_result',
+        tool_use_id: block.id,
+        content: resultText,
+      });
+    }
+
+    convo.push({ role: 'user', content: toolResults });
+  }
+
+  // Si saltamos el loop sin un stop_reason !== 'tool_use', devolvemos
+  // texto vacío y dejamos que el caller maneje el caso.
+  process.stderr.write('⚠️  callClaudeWithTools: alcanzó MAX_TOOL_ITER sin respuesta final.\n');
+  return { rawResponse: '', usedEmployeeTool };
+}
 
 // ── Lógica de Escalación ──────────────────────────────────────
 
@@ -196,6 +307,8 @@ app.post('/chat', async (req, res) => {
     });
   }
 
+  const startedAt = Date.now();
+
   try {
     // 2. Vectorizar la consulta del usuario
     const embeddingResponse = await openai.embeddings.create({
@@ -233,22 +346,26 @@ app.post('/chat', async (req, res) => {
       },
     ];
 
-    // 6. Llamar a Claude Haiku 4.5
-    const completion = await anthropic.messages.create({
-      model: CHAT_MODEL,
-      max_tokens: 1024,
-      system: SYSTEM_PROMPT,
-      messages,
-    });
-
-    // La respuesta viene como content blocks (array). Extraemos el primer
-    // bloque de texto. Defensivo: si por alguna razón no hay texto, fallback.
-    const rawResponse =
-      completion.content.find(b => b.type === 'text')?.text ?? '';
+    // 6. Llamar a Claude Haiku 4.5 con tool use habilitado
+    const { rawResponse, usedEmployeeTool } = await callClaudeWithTools(messages);
 
     // 7. Detectar si requiere escalación humana
     if (needsEscalation(rawResponse)) {
       const escalationMessage = handleEscalation(userMessage);
+      const latencyMs = Date.now() - startedAt;
+      try {
+        db.logConsulta({
+          pregunta: userMessage,
+          respuesta: escalationMessage,
+          escalated: true,
+          sources: [],
+          topScore: topChunks[0]?.score ?? null,
+          latencyMs,
+          usedEmployeeTool,
+        });
+      } catch (logErr) {
+        console.error('⚠️  logConsulta (escalated) falló:', logErr.message);
+      }
       return res.json({
         reply: escalationMessage,
         escalated: true,
@@ -258,12 +375,28 @@ app.post('/chat', async (req, res) => {
 
     // 8. Respuesta normal — incluir fuentes para transparencia
     const sources = [...new Set(topChunks.map(c => c.source))];
+    const topScore = topChunks[0]?.score || 0;
+    const latencyMs = Date.now() - startedAt;
+
+    try {
+      db.logConsulta({
+        pregunta: userMessage,
+        respuesta: rawResponse,
+        escalated: false,
+        sources,
+        topScore,
+        latencyMs,
+        usedEmployeeTool,
+      });
+    } catch (logErr) {
+      console.error('⚠️  logConsulta falló:', logErr.message);
+    }
 
     return res.json({
       reply: rawResponse,
       escalated: false,
       sources,
-      topScore: topChunks[0]?.score || 0,
+      topScore,
     });
 
   } catch (err) {
@@ -290,6 +423,44 @@ app.post('/chat', async (req, res) => {
     }
 
     return res.status(500).json({ error: 'Error interno del servidor. Por favor intentá de nuevo.' });
+  }
+});
+
+// ── Endpoints admin ───────────────────────────────────────────
+
+app.get('/admin/stats', (req, res) => {
+  try {
+    const { consultas, empleados } = db.counts();
+    res.json({
+      topQueries: db.topPreguntas(10),
+      gaps: db.gaps(10),
+      total: consultas,
+      employeesCount: empleados,
+    });
+  } catch (err) {
+    process.stderr.write(`❌ /admin/stats: ${err.message}\n`);
+    res.status(500).json({ error: 'No se pudo leer las estadísticas.' });
+  }
+});
+
+app.get('/admin/queries.csv', (req, res) => {
+  try {
+    const csv = db.exportarCsv();
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="consultas.csv"');
+    res.send(csv);
+  } catch (err) {
+    process.stderr.write(`❌ /admin/queries.csv: ${err.message}\n`);
+    res.status(500).json({ error: 'No se pudo exportar el CSV.' });
+  }
+});
+
+app.get('/admin/employees', (req, res) => {
+  try {
+    res.json(db.listEmpleadosPublic());
+  } catch (err) {
+    process.stderr.write(`❌ /admin/employees: ${err.message}\n`);
+    res.status(500).json({ error: 'No se pudo listar empleados.' });
   }
 });
 
