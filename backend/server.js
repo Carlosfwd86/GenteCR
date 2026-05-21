@@ -125,9 +125,28 @@ function findTopKChunks(queryVector, topK) {
 function getSystemPrompt() {
   const docList = availableDocumentsList || '(No hay documentos cargados)';
 
+  // Obtener la fecha y hora actual en la zona horaria de Costa Rica (Garnier & Garnier)
+  const currentDateCR = new Date().toLocaleDateString('es-CR', {
+    timeZone: 'America/Costa_Rica',
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  const currentTimeCR = new Date().toLocaleTimeString('es-CR', {
+    timeZone: 'America/Costa_Rica',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
   return [
     'Eres un asistente virtual de Recursos Humanos (RRHH) amable, empatico y altamente profesional de la empresa Garnier y Garnier.',
     'Tu objetivo es ayudar a los empleados respondiendo sus dudas sobre politicas internas, tramites, beneficios, procesos de la empresa y temas laborales, basandote en el contexto provisto y la lista de documentos disponibles.',
+    '',
+    '--- CONTEXTO TEMPORAL ACTUAL (CRITICO) ---',
+    `Fecha actual de hoy: ${currentDateCR}`,
+    `Hora actual en Costa Rica: ${currentTimeCR}`,
+    'Usa esta informacion temporal para situar correctamente las consultas en el tiempo. Por ejemplo, si el usuario pregunta sobre traslados de feriados de este ano, considera que el ano en curso es el indicado arriba.',
     '',
     '--- INVENTARIO DE DOCUMENTOS DISPONIBLES ---',
     'En nuestra base de datos contamos con los siguientes documentos oficiales:',
