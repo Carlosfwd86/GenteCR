@@ -1,5 +1,10 @@
-<!-- Placeholder del logo. Reemplazar por el SVG real de Garnier & Garnier. -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="12" fill="var(--color-primary, #0d6e3f)"/>
-  <text x="50%" y="55%" text-anchor="middle" fill="#fff" font-family="system-ui, sans-serif" font-size="22" font-weight="700">G</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <g transform="translate(10, 10)">
+    <path d="M 50,15 C 80,8 98,45 92,72 C 86,99 50,115 28,103 C 6,91 22,22 50,15 Z"
+          fill="none" stroke="#2D3134" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 22,22 C 0,42 -2,78 14,97 C 30,116 76,92 88,65 C 100,38 46,-2 22,22 Z"
+          fill="none" stroke="#0074C4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 45,5 C 70,5 73,52 64,82 C 55,112 22,118 14,95 C 6,72 25,5 45,5 Z"
+          fill="none" stroke="#F15A24" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
 </svg>

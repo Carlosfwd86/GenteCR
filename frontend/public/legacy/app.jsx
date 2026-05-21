@@ -329,7 +329,7 @@ function ChatModal({ t, onClose }) {
             </svg>
           </span>
           <span style={{ fontWeight: 600, fontSize: 14 }}>{titleLabel}</span>
-          <a href="/chat/" target="_blank" rel="noopener"
+          <a href="/chat/index.html" target="_blank" rel="noopener"
              title={openFullLabel} aria-label={openFullLabel}
              style={{
                marginLeft: "auto",
@@ -357,7 +357,7 @@ function ChatModal({ t, onClose }) {
             </svg>
           </button>
         </div>
-        <iframe src="/chat/" title={titleLabel}
+        <iframe src="/chat/index.html" title={titleLabel}
                 style={{ flex: 1, width: "100%", border: 0, background: "#FFFFFF" }} />
       </div>
     </div>
