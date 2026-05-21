@@ -206,10 +206,30 @@ const LikertBar = ({ avg, total = 41 }) => {
 };
 
 // ---------- Brand mark + logo ----------
-const Logo = ({ size = 26 }) => (
-  <div className="brand-mark" style={{ padding: 0 }}>
-    <div className="glyph" style={{ width: size, height: size, fontSize: size * 0.5 }}>G</div>
-    <div className="name" style={{ fontSize: size * 0.62 }}>GenteCR</div>
+const Logo = ({ size = 28 }) => (
+  <div className="brand-mark" style={{ padding: 0, display: "flex", alignItems: "center" }}>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 120" style={{ height: size, width: "auto", display: "block" }}>
+      <defs>
+        <path id="gentecr-loop" d="M 60 20 C 64 20, 83 72, 85 84 C 86 92, 74 100, 60 100 C 46 100, 34 92, 35 84 C 37 72, 56 20, 60 20 Z" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </defs>
+      <g>
+        <use href="#gentecr-loop" stroke="#E65A28" strokeWidth="9" transform="rotate(330, 60, 60)" />
+        <use href="#gentecr-loop" stroke="var(--paper, #FFFFFF)" strokeWidth="17" transform="rotate(210, 60, 60)" />
+        <use href="#gentecr-loop" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
+        <use href="#gentecr-loop" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
+        <use href="#gentecr-loop" stroke="currentColor" stroke-width="9" transform="rotate(90, 60, 60)" />
+        <use href="#gentecr-loop" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+        <use href="#gentecr-loop" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+      </g>
+      <g fill="currentColor">
+        <text x="130" y="73" fontFamily="var(--font-display), 'DM Sans', sans-serif" fontSize="70" letterSpacing="-0.02em">
+          <tspan fontWeight="300" opacity="0.9">Gente</tspan><tspan fontWeight="700">CR</tspan>
+        </text>
+        <text x="132" y="98" fontFamily="var(--font-display), 'DM Sans', sans-serif" fontSize="16" fontWeight="600" letterSpacing="0.09em" opacity="0.75">
+          MENOS PANTALLAS, MÁS CONVERSACIONES
+        </text>
+      </g>
+    </svg>
   </div>
 );
 

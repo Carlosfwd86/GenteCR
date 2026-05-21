@@ -48,12 +48,7 @@
     }
     .chat-bot-avatar {
       width: 32px; height: 32px;
-      border-radius: 7px;
-      background: var(--brand-deep);
-      color: #FFF;
       display: grid; place-items: center;
-      font-family: var(--font-display); font-weight: 700; font-size: 14px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
       flex-shrink: 0;
     }
     .convo-list { padding: 8px; overflow-y: auto; flex: 1; }
@@ -266,6 +261,13 @@
   </style>
 </head>
 <body>
+  <!-- Global SVG definitions for GenteCR brand icon -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <defs>
+      <path id="gentecr-loop-icon" d="M 60 20 C 64 20, 83 72, 85 84 C 86 92, 74 100, 60 100 C 46 100, 34 92, 35 84 C 37 72, 56 20, 60 20 Z" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+    </defs>
+  </svg>
+
   <a class="back-link" href="Dashboard RRHH.html">
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0 7-7m-7 7 7 7"/></svg>
     Volver al dashboard
@@ -275,7 +277,19 @@
     <!-- Sidebar -->
     <aside class="chat-side">
       <div class="chat-head" style="padding: 14px 14px;">
-        <div class="chat-bot-avatar">G</div>
+        <div class="chat-bot-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width: 100%; height: 100%; display: block;">
+            <g>
+              <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" transform="rotate(330, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(210, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--ink, #333333)" stroke-width="9" transform="rotate(90, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+            </g>
+          </svg>
+        </div>
         <div>
           <div class="name">Asistente GenteCR</div>
           <div class="status">
@@ -350,7 +364,17 @@
     <!-- Main chat -->
     <main class="chat-main">
       <div class="chat-head">
-        <div class="chat-bot-avatar">G</div>
+        <div class="chat-bot-avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width: 100%; height: 100%; display: block;">
+            <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" transform="rotate(330, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(210, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--ink, #333333)" stroke-width="9" transform="rotate(90, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+          </svg>
+        </div>
         <div style="flex:1">
           <div class="name">Asistente GenteCR</div>
           <div class="status">
@@ -370,7 +394,17 @@
         <div class="day-sep">Hoy · 10:42</div>
 
         <div class="msg bot">
-          <div class="chat-bot-avatar" style="width:30px; height:30px; font-size:13px;">G</div>
+          <div class="chat-bot-avatar" style="width:30px; height:30px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width: 100%; height: 100%; display: block;">
+              <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" transform="rotate(330, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(210, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--ink, #333333)" stroke-width="9" transform="rotate(90, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+              <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+            </svg>
+          </div>
           <div>
             <div class="bubble">
               Hola Andrea 👋 Soy el asistente de GenteCR. Tengo acceso a las encuestas, anuncios y métricas del equipo. ¿En qué te ayudo hoy?
@@ -432,7 +466,17 @@
       const wrap = document.createElement('div');
       wrap.className = 'msg bot';
       wrap.innerHTML = `
-        <div class="chat-bot-avatar" style="width:30px; height:30px; font-size:13px;">G</div>
+        <div class="chat-bot-avatar" style="width:30px; height:30px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width: 100%; height: 100%; display: block;">
+            <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" transform="rotate(330, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(210, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--ink, #333333)" stroke-width="9" transform="rotate(90, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+          </svg>
+        </div>
         <div>
           <div class="bubble">${html}</div>
           <div class="meta">Asistente · ${ts()}</div>
@@ -446,7 +490,17 @@
       wrap.className = 'msg bot';
       wrap.id = 'typing';
       wrap.innerHTML = `
-        <div class="chat-bot-avatar" style="width:30px; height:30px; font-size:13px;">G</div>
+        <div class="chat-bot-avatar" style="width:30px; height:30px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width: 100%; height: 100%; display: block;">
+            <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" transform="rotate(330, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(210, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="#007BC4" stroke-width="9" transform="rotate(210, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" transform="rotate(90, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--ink, #333333)" stroke-width="9" transform="rotate(90, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="var(--paper, #FFFFFF)" stroke-width="17" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+            <use href="#gentecr-loop-icon" stroke="#E65A28" stroke-width="9" stroke-dasharray="40 300" stroke-dashoffset="0" transform="rotate(330, 60, 60)" />
+          </svg>
+        </div>
         <div>
           <div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>
         </div>`;
