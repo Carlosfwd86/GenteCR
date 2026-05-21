@@ -11,7 +11,7 @@ function Sidebar({ t, route, setRoute, variant }) {
   ];
   return (
     <aside className="sidebar">
-      <Logo />
+      <Logo size={38} />
       <button className="btn brand" style={{ width: "100%", justifyContent: "center" }}>
         <Icon name="plus" size={14} />
         {t("topbar.compose")}

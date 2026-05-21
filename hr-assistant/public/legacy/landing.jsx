@@ -16,7 +16,7 @@ function Landing({ t, onEnter }) {
     <div className="land" data-screen-label="01 Landing pública">
       {/* Nav */}
       <div className="land-nav">
-        <Logo size={28} />
+        <Logo size={38} />
         <div style={{ display:"flex", gap: 22, marginLeft: 24 }}>
           <a href="#producto">{t("lang") === "ES" ? "Producto" : "Product"}</a>
           <a href="#beneficios">{t("lang") === "ES" ? "Beneficios" : "Why us"}</a>
