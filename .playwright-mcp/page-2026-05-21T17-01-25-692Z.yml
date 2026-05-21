@@ -1,0 +1,14 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Garnier HR Assistant" [level=1] [ref=e6]
+      - link "← Volver al inicio" [ref=e7] [cursor=pointer]:
+        - /url: /
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - paragraph [ref=e14]: Hola, soy el asistente de RH de Garnier & Garnier. ¿En qué puedo ayudarte hoy?
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - textbox "Escribí tu pregunta sobre políticas de RH..." [ref=e17]
+          - button "Enviar" [disabled] [ref=e18]
+        - button "Esto no responde — escalar a RH" [ref=e19] [cursor=pointer]

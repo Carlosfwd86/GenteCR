@@ -1,0 +1,86 @@
+- generic [ref=e1]:
+  - link "Volver al dashboard" [ref=e2] [cursor=pointer]:
+    - /url: Dashboard RRHH.html
+    - img [ref=e3]
+    - text: Volver al dashboard
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: G
+        - generic [ref=e9]:
+          - generic [ref=e10]: Asistente GenteCR
+          - generic [ref=e11]: En línea · responde en segundos
+      - generic [ref=e13]:
+        - generic [ref=e14]: Hoy
+        - generic [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: ●
+          - generic [ref=e17]:
+            - generic [ref=e18]: Conversación nueva
+            - generic [ref=e19]: ¿En qué puedo ayudarte?
+          - generic [ref=e20]: 10:42
+        - generic [ref=e21] [cursor=pointer]:
+          - generic [ref=e22]: 📊
+          - generic [ref=e23]:
+            - generic [ref=e24]: Resumen del pulse de mayo
+            - generic [ref=e25]: Comparativa por equipo y deltas mes a mes
+          - generic [ref=e26]: 09:14
+        - generic [ref=e27]: Ayer
+        - generic [ref=e28] [cursor=pointer]:
+          - generic [ref=e29]: 👥
+          - generic [ref=e30]:
+            - generic [ref=e31]: Personas en riesgo · Ops
+            - generic [ref=e32]: 3 personas a vigilar esta semana
+          - generic [ref=e33]: 17:22
+        - generic [ref=e34] [cursor=pointer]:
+          - generic [ref=e35]: 📝
+          - generic [ref=e36]:
+            - generic [ref=e37]: Redactar anuncio nuevo
+            - generic [ref=e38]: Beneficio remoto - tono cálido
+          - generic [ref=e39]: 15:08
+        - generic [ref=e40]: Esta semana
+        - generic [ref=e41] [cursor=pointer]:
+          - generic [ref=e42]: 🎯
+          - generic [ref=e43]:
+            - generic [ref=e44]: Sugerir preguntas de pulse
+            - generic [ref=e45]: Carga de trabajo + reconocimiento
+          - generic [ref=e46]: lun
+        - generic [ref=e47] [cursor=pointer]:
+          - generic [ref=e48]: 🎤
+          - generic [ref=e49]:
+            - generic [ref=e50]: Preparar 1:1 con Sofía R.
+            - generic [ref=e51]: Temas + datos recientes
+          - generic [ref=e52]: lun
+      - button "Nueva conversación" [ref=e54] [cursor=pointer]:
+        - img [ref=e55]
+        - text: Nueva conversación
+    - main [ref=e57]:
+      - generic [ref=e58]:
+        - generic [ref=e59]: G
+        - generic [ref=e60]:
+          - generic [ref=e61]: Asistente GenteCR
+          - generic [ref=e62]: Entrenado con tus datos · privado al equipo de People
+        - button "Limpiar conversación" [ref=e64] [cursor=pointer]:
+          - img [ref=e65]
+        - button "Opciones" [ref=e67] [cursor=pointer]:
+          - img [ref=e68]
+      - generic [ref=e72]:
+        - generic [ref=e73]: Hoy · 10:42
+        - generic [ref=e74]:
+          - generic [ref=e75]: G
+          - generic [ref=e76]:
+            - generic [ref=e77]:
+              - text: Hola Andrea 👋 Soy el asistente de GenteCR. Tengo acceso a las encuestas, anuncios y métricas del equipo. ¿En qué te ayudo hoy?
+              - generic [ref=e78]:
+                - button "📊 ¿Cómo le fue al equipo esta semana?" [ref=e79] [cursor=pointer]
+                - button "🚨 ¿Quién está en riesgo?" [ref=e80] [cursor=pointer]
+                - button "✍️ Redactar un anuncio" [ref=e81] [cursor=pointer]
+                - button "🎯 Preguntas para el pulse" [ref=e82] [cursor=pointer]
+            - generic [ref=e83]: Asistente · 10:42
+      - generic [ref=e84]:
+        - generic [ref=e85]:
+          - textbox "Escribe tu mensaje… puedes pedirme resumen del pulse, redactar anuncios, ver alertas, etc." [active] [ref=e86]
+          - button "Enviar (Enter)" [disabled] [ref=e87]:
+            - img [ref=e88]
+        - generic [ref=e90]:
+          - generic [ref=e91]: ↵ enviar · ⇧↵ nueva línea
+          - generic [ref=e92]: 🔒 Respuestas privadas, no salen de tu organización

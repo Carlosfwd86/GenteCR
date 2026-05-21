@@ -1,0 +1,17 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Garnier HR Assistant" [level=1] [ref=e6]
+      - link "← Volver al inicio" [ref=e7] [cursor=pointer]:
+        - /url: /
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - log [ref=e11]:
+        - paragraph [ref=e15]: Hola, soy el asistente de RH de Garnier & Garnier. ¿En qué puedo ayudarte hoy?
+        - paragraph [ref=e19]: ¿Cuántos días de vacaciones tengo?
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: (mock) Las vacaciones se solicitan con 15 días de anticipación vía el portal interno.
+          - paragraph [ref=e24]: "Fuente: RH-13, sección 6.3, pág. 8"
+      - generic [ref=e26]:
+        - textbox "Escribí tu pregunta sobre políticas de RH..." [ref=e27]
+        - button "Enviar" [disabled] [ref=e28]

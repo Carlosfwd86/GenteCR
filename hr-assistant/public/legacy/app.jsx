@@ -183,82 +183,184 @@ function RecruitView({ t }) {
   );
 }
 
-// Floating chat button — opens chatbot in a new tab
+// Floating chat button — abre el chatbot React en un modal (iframe a /chat/).
+// Para abrirlo en página completa: /chat/.
 function ChatFAB({ t, landing = false }) {
   const [hovered, setHovered] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
   const label = (t("lang") === "EN") ? "Ask GenteCR" : "Pregunta a GenteCR";
-  const tip = (t("lang") === "EN") ? "AI assistant · opens in new tab" : "Asistente IA · abre en pestaña nueva";
+  const tip = (t("lang") === "EN") ? "AI assistant" : "Asistente IA";
+
+  // Bloquea scroll del body cuando el modal está abierto.
+  React.useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
   return (
-    <a href="Chatbot.html" target="_blank" rel="noopener"
-       onMouseEnter={() => setHovered(true)}
-       onMouseLeave={() => setHovered(false)}
-       title={tip}
-       style={{
-         position: "fixed",
-         right: 20,
-         bottom: 20,
-         zIndex: 55,
-         display: "inline-flex",
-         alignItems: "center",
-         gap: 10,
-         padding: hovered ? "0 18px 0 14px" : 0,
-         height: 52,
-         width: hovered ? "auto" : 52,
-         borderRadius: 999,
-         background: "linear-gradient(180deg, #1E40AF 0%, #1E3A8A 100%)",
-         color: "#FFFFFF",
-         boxShadow: "0 12px 28px -8px rgba(30,58,138,0.45), 0 4px 8px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
-         textDecoration: "none",
-         fontWeight: 600,
-         fontSize: 13.5,
-         letterSpacing: "-0.005em",
-         border: "1px solid rgba(255,255,255,0.12)",
-         transition: "width .22s cubic-bezier(.32,.72,0,1), padding .22s cubic-bezier(.32,.72,0,1), transform .12s, box-shadow .15s",
-         overflow: "hidden",
-         whiteSpace: "nowrap",
-         transform: hovered ? "translateY(-1px)" : "none",
-         cursor: "pointer"
-       }}>
-      <span style={{
-        width: 52, height: 52, flexShrink: 0,
-        display: "grid", placeItems: "center",
-        position: "relative"
-      }}>
-        {/* Pulse ring */}
-        <span aria-hidden style={{
-          position: "absolute", inset: 8, borderRadius: 999,
-          border: "2px solid rgba(255,255,255,0.45)",
-          animation: "fabPulse 2.4s ease-out infinite"
-        }}/>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M21 12a8 8 0 0 1-11.6 7.16L4 21l1.84-5.4A8 8 0 1 1 21 12Z"/>
-          <circle cx="9" cy="12" r="0.8" fill="currentColor" stroke="none"/>
-          <circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="none"/>
-          <circle cx="15" cy="12" r="0.8" fill="currentColor" stroke="none"/>
-        </svg>
-        {/* Online dot */}
-        <span aria-hidden style={{
-          position: "absolute", top: 8, right: 8,
-          width: 10, height: 10, borderRadius: 999,
-          background: "#22C55E",
-          border: "2px solid #1E3A8A"
-        }}/>
-      </span>
-      {hovered && (
-        <span style={{ display: "inline-flex", flexDirection: "column", lineHeight: 1.15 }}>
-          <span>{label}</span>
-          <span style={{ fontSize: 10.5, fontWeight: 500, opacity: 0.75, letterSpacing: "0.02em" }}>
-            {t("lang") === "EN" ? "AI assistant · 24/7" : "Asistente IA · 24/7"}
-          </span>
+    <>
+      <button type="button"
+         onClick={() => setOpen(true)}
+         onMouseEnter={() => setHovered(true)}
+         onMouseLeave={() => setHovered(false)}
+         title={tip}
+         aria-label={label}
+         style={{
+           position: "fixed",
+           right: 20,
+           bottom: 20,
+           zIndex: 55,
+           display: "inline-flex",
+           alignItems: "center",
+           gap: 10,
+           padding: hovered ? "0 18px 0 14px" : 0,
+           height: 52,
+           width: hovered ? "auto" : 52,
+           borderRadius: 999,
+           background: "linear-gradient(180deg, #1E40AF 0%, #1E3A8A 100%)",
+           color: "#FFFFFF",
+           boxShadow: "0 12px 28px -8px rgba(30,58,138,0.45), 0 4px 8px rgba(15,23,42,0.12), inset 0 1px 0 rgba(255,255,255,0.18)",
+           fontWeight: 600,
+           fontSize: 13.5,
+           letterSpacing: "-0.005em",
+           border: "1px solid rgba(255,255,255,0.12)",
+           transition: "width .22s cubic-bezier(.32,.72,0,1), padding .22s cubic-bezier(.32,.72,0,1), transform .12s, box-shadow .15s",
+           overflow: "hidden",
+           whiteSpace: "nowrap",
+           transform: hovered ? "translateY(-1px)" : "none",
+           cursor: "pointer",
+           fontFamily: "inherit"
+         }}>
+        <span style={{
+          width: 52, height: 52, flexShrink: 0,
+          display: "grid", placeItems: "center",
+          position: "relative"
+        }}>
+          {/* Pulse ring */}
+          <span aria-hidden style={{
+            position: "absolute", inset: 8, borderRadius: 999,
+            border: "2px solid rgba(255,255,255,0.45)",
+            animation: "fabPulse 2.4s ease-out infinite"
+          }}/>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 12a8 8 0 0 1-11.6 7.16L4 21l1.84-5.4A8 8 0 1 1 21 12Z"/>
+            <circle cx="9" cy="12" r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="12" cy="12" r="0.8" fill="currentColor" stroke="none"/>
+            <circle cx="15" cy="12" r="0.8" fill="currentColor" stroke="none"/>
+          </svg>
+          {/* Online dot */}
+          <span aria-hidden style={{
+            position: "absolute", top: 8, right: 8,
+            width: 10, height: 10, borderRadius: 999,
+            background: "#22C55E",
+            border: "2px solid #1E3A8A"
+          }}/>
         </span>
-      )}
-      <style>{`@keyframes fabPulse {
-        0% { transform: scale(1); opacity: 0.7; }
-        80% { transform: scale(1.45); opacity: 0; }
-        100% { transform: scale(1.45); opacity: 0; }
-      }`}</style>
-    </a>
+        {hovered && (
+          <span style={{ display: "inline-flex", flexDirection: "column", lineHeight: 1.15, textAlign: "left" }}>
+            <span>{label}</span>
+            <span style={{ fontSize: 10.5, fontWeight: 500, opacity: 0.75, letterSpacing: "0.02em" }}>
+              {t("lang") === "EN" ? "AI assistant · 24/7" : "Asistente IA · 24/7"}
+            </span>
+          </span>
+        )}
+        <style>{`@keyframes fabPulse {
+          0% { transform: scale(1); opacity: 0.7; }
+          80% { transform: scale(1.45); opacity: 0; }
+          100% { transform: scale(1.45); opacity: 0; }
+        }`}</style>
+      </button>
+
+      {open && <ChatModal t={t} onClose={() => setOpen(false)} />}
+    </>
+  );
+}
+
+// Modal con iframe al chatbot React (/chat/). Se adapta mobile-first.
+function ChatModal({ t, onClose }) {
+  const closeLabel = (t("lang") === "EN") ? "Close chat" : "Cerrar chat";
+  const titleLabel = (t("lang") === "EN") ? "GenteCR Assistant" : "Asistente GenteCR";
+  const openFullLabel = (t("lang") === "EN") ? "Open full page" : "Abrir en página completa";
+
+  return (
+    <div role="dialog" aria-modal="true" aria-label={titleLabel}
+         onClick={onClose}
+         style={{
+           position: "fixed", inset: 0, zIndex: 60,
+           background: "rgba(15, 23, 42, 0.45)",
+           backdropFilter: "blur(2px)",
+           display: "flex", alignItems: "flex-end", justifyContent: "flex-end",
+           padding: "min(24px, 4vw)"
+         }}>
+      <div onClick={(e) => e.stopPropagation()}
+           style={{
+             width: "min(420px, 100%)",
+             height: "min(640px, calc(100vh - 32px))",
+             background: "#FFFFFF",
+             borderRadius: 16,
+             boxShadow: "0 24px 60px -12px rgba(15,23,42,0.35), 0 8px 16px rgba(15,23,42,0.12)",
+             overflow: "hidden",
+             display: "flex", flexDirection: "column",
+             border: "1px solid rgba(15,23,42,0.08)"
+           }}>
+        <div style={{
+          display: "flex", alignItems: "center", gap: 12,
+          padding: "12px 14px",
+          borderBottom: "1px solid rgba(15,23,42,0.08)",
+          background: "linear-gradient(180deg, #1E40AF 0%, #1E3A8A 100%)",
+          color: "#FFFFFF"
+        }}>
+          <span style={{
+            width: 28, height: 28, borderRadius: 999,
+            background: "rgba(255,255,255,0.12)",
+            display: "grid", placeItems: "center"
+          }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12a8 8 0 0 1-11.6 7.16L4 21l1.84-5.4A8 8 0 1 1 21 12Z"/>
+            </svg>
+          </span>
+          <span style={{ fontWeight: 600, fontSize: 14 }}>{titleLabel}</span>
+          <a href="/chat/" target="_blank" rel="noopener"
+             title={openFullLabel} aria-label={openFullLabel}
+             style={{
+               marginLeft: "auto",
+               color: "rgba(255,255,255,0.8)",
+               display: "grid", placeItems: "center",
+               width: 28, height: 28, borderRadius: 8,
+               textDecoration: "none"
+             }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7"/><path d="M8 7h9v9"/>
+            </svg>
+          </a>
+          <button type="button" onClick={onClose}
+                  aria-label={closeLabel} title={closeLabel}
+                  style={{
+                    background: "transparent", border: 0,
+                    color: "#FFFFFF", cursor: "pointer",
+                    width: 28, height: 28, borderRadius: 8,
+                    display: "grid", placeItems: "center"
+                  }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 6L6 18"/><path d="M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+        <iframe src="/chat/" title={titleLabel}
+                style={{ flex: 1, width: "100%", border: 0, background: "#FFFFFF" }} />
+      </div>
+    </div>
   );
 }
 
