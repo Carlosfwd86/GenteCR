@@ -1,0 +1,51 @@
+# Dependencies (cubierto también en subcarpetas, redundancia explícita)
+node_modules/
+
+# Secrets — JAMÁS commitear
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Builds
+dist/
+dist-ssr/
+build/
+
+# Embeddings RAG (49MB, regenerar con `cd backend && npm run ingest`)
+backend/embeddings_rrhh.json
+backend/documentos/
+
+# Base de datos local SQLite (logs de consultas)
+# Incluye WAL y SHM: son archivos runtime que regeneran al arrancar el server
+# (la seed de empleados se recrea sola si la tabla esta vacia).
+backend/*.db
+backend/*.db-journal
+backend/*.db-wal
+backend/*.db-shm
+backend/*.sqlite
+backend/*.sqlite-journal
+backend/*.sqlite-wal
+backend/*.sqlite-shm
+
+# Screenshots de QA / Playwright
+*.png
+.playwright-mcp/
+
+# IDEs
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Claude Code temp
+claude-*-cwd

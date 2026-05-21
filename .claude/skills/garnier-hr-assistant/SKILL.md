@@ -1,37 +1,38 @@
 ---
 name: garnier-hr-assistant
-description: Conocimiento específico del proyecto Garnier HR Assistant — patrones de componentes, integración con n8n, estructura de mensajes del chat. Usar cuando se trabaje en cualquier archivo dentro de src/components, src/hooks o src/services.
+description: Conocimiento específico del proyecto Garnier HR Assistant — patrones de componentes, integración con el backend Express+RAG+Claude, estructura de mensajes del chat. Usar cuando se trabaje en cualquier archivo dentro de src/components, src/hooks o src/services.
 ---
 
 # Garnier HR Assistant — Patrones del proyecto
 
 ## Estructura de un mensaje del chat
 
-Todo mensaje en el array `messages` del hook `useChat` sigue esta forma:
+Todo mensaje en el array `messages` del hook `useChat` sigue una de estas
+formas. La forma se deriva del contrato del backend documentado en CLAUDE.md.
 
 ```js
 // Mensaje del usuario
 { role: 'user', text: 'string', ts: Number }
 
-// Mensaje del bot con respuesta encontrada
+// Mensaje del bot — respuesta normal con fuentes
 {
   role: 'bot',
-  text: 'string',
-  fuente: { doc: 'RH-13', seccion: '6.3', pagina: 8 },
-  confianza: 0.87,
+  text: 'string',           // viene de reply
+  sources: ['archivo.pdf'], // array de nombres de PDF
+  topScore: 0.87,           // opcional, para debugging visual
   ts: Number
 }
 
-// Mensaje del bot sin respuesta (puede escalar)
+// Mensaje del bot — escalado por el backend
 {
   role: 'bot',
-  text: null,
-  puede_escalar: true,
-  pregunta_original: 'string',  // se guarda para el escalado
+  text: 'string',           // mensaje pre-armado que viene en reply
+  escalated: true,
+  sources: [],
   ts: Number
 }
 
-// Mensaje del bot por error de red/timeout
+// Mensaje del bot — error de red/timeout (lo genera el frontend, no el backend)
 {
   role: 'bot',
   text: 'No pude conectarme. Intentá de nuevo.',
@@ -39,6 +40,29 @@ Todo mensaje en el array `messages` del hook `useChat` sigue esta forma:
   ts: Number
 }
 ```
+
+Importante: **el frontend no decide cuándo escalar**. Solo renderiza el banner
+de escalación cuando el bot le manda `escalated: true`.
+
+## Mapeo response → mensaje
+
+Cuando llega la respuesta del backend, useChat la transforma así:
+
+```js
+// pseudocódigo
+const data = await askQuestion(message, history);
+messages.push({
+  role: 'bot',
+  text: data.reply,
+  sources: data.sources ?? [],
+  topScore: data.topScore,
+  escalated: data.escalated === true,
+  ts: Date.now(),
+});
+```
+
+El campo `history` que se manda al backend se construye desde `messages`
+mapeando `user` → `user` y `bot` → `assistant`, y usando `text` como `content`.
 
 ## Patrón para componentes presentacionales
 
@@ -62,16 +86,39 @@ export default function MessageBubble({ message }) {
 }
 ```
 
-## Patrón para llamadas async
+## EscalationBanner (no es un botón)
 
-Toda llamada al webhook usa este patrón:
+Componente puramente visual. Se renderiza debajo de un MessageBubble del bot
+cuando `message.escalated === true`. NO tiene onClick ni acciones. Reemplaza
+al viejo EscalateButton.
+
+```jsx
+// src/components/EscalationBanner.jsx
+// Aviso visual cuando el backend derivó la consulta a RH.
+
+export default function EscalationBanner() {
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-2 px-3 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] text-sm text-[var(--color-text-muted)]"
+    >
+      Esta consulta fue derivada al equipo de RH.
+    </div>
+  );
+}
+```
+
+## Patrón para llamadas al backend
+
+Toda llamada usa este patrón. Vive en `services/api.js`.
 
 ```js
-async function callWebhook(path, body, { timeoutMs = 15000 } = {}) {
+async function callBackend(path, body, { timeoutMs = 20000 } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(`${import.meta.env.VITE_N8N_WEBHOOK_URL}${path}`, {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -83,20 +130,56 @@ async function callWebhook(path, body, { timeoutMs = 15000 } = {}) {
     clearTimeout(timer);
   }
 }
+
+// Uso
+export async function askQuestion(message, history = []) {
+  return callBackend('/chat', { message, history });
+}
 ```
 
-## Las 5 preguntas oficiales de QA
+Timeout más generoso que con el endpoint imaginado de n8n (20s) porque RAG +
+Claude puede tardar varios segundos en consultas complejas.
 
-Usalas siempre que valides un cambio:
+## SourceCitation
 
-1. "¿Cuántos días de vacaciones tengo?" → debe citar RH-01
-2. "¿Cómo solicito teletrabajo?" → debe citar RH-13
-3. "¿Qué cubre la política de viáticos?" → debe citar RH-23
-4. "¿Cómo reporto un incidente de acoso?" → debe citar RH-04
-5. "¿Cuál es el código de vestimenta?" → debe citar RH-25
+Recibe `sources` (array de strings) y los renderiza como lista de chips
+debajo de la burbuja del bot. Si `sources` está vacío o es undefined, no
+renderiza nada.
 
-Y una pregunta fuera de alcance para validar el escalado:
-6. "¿Cuánto pagan de aguinaldo este año?" → debe devolver `puede_escalar: true`
+```jsx
+// src/components/SourceCitation.jsx
+export default function SourceCitation({ sources }) {
+  if (!sources || sources.length === 0) return null;
+  return (
+    <div className="mt-1 flex flex-wrap gap-1">
+      {sources.map(src => (
+        <span key={src} className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-surface)] text-[var(--color-text-muted)] border border-[var(--color-border)]">
+          {src}
+        </span>
+      ))}
+    </div>
+  );
+}
+```
+
+## Preguntas oficiales de QA
+
+Usalas siempre que valides un cambio. La validación es:
+- ¿El bot respondió en español, claro y conciso?
+- ¿`sources` trae al menos un PDF cuando la respuesta es real?
+- ¿`escalated` es true en las que corresponden?
+
+Preguntas válidas (esperamos respuesta + sources con al menos 1 PDF):
+1. "¿Cuántos días de vacaciones tengo?"
+2. "¿Cómo solicito teletrabajo?"
+3. "¿Qué cubre la política de viáticos?"
+4. "¿Cuál es el código de vestimenta?"
+5. "¿Qué beneficios laborales tengo?"
+
+Preguntas que deben disparar escalación (esperamos `escalated: true`):
+6. "¿Cuánto pagan de aguinaldo este año?" (no está en el corpus)
+7. "Quiero hablar con una persona de RH" (pide humano explícitamente)
+8. "Tengo un problema de acoso laboral" (tema delicado)
 
 ## Tokens de diseño esperados
 
