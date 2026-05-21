@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Asistente virtual de Recursos Humanos con IA - Responde tus dudas sobre políticas, trámites y beneficios." />
+  <title>RRHH Asistente IA | Portal del Empleado</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header" role="banner">
+    <div class="header-content">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="8" fill="url(#gradient-logo)"/>
+            <path d="M8 14C8 10.686 10.686 8 14 8s6 2.686 6 6-2.686 6-6 6-6-2.686-6-6z" fill="white" opacity="0.9"/>
+            <path d="M14 11v6M11 14h6" stroke="#4F46E5" stroke-width="2" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="gradient-logo" x1="0" y1="0" x2="28" y2="28">
+                <stop offset="0%" stop-color="#6366F1"/>
+                <stop offset="100%" stop-color="#4F46E5"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1 class="brand-name">RRHH Asistente</h1>
+          <span class="brand-sub">Portal del Empleado</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="status-indicator" id="status-indicator" title="Estado de conexión">
+          <span class="status-dot" id="status-dot"></span>
+          <span class="status-label" id="status-label">Conectando...</span>
+        </div>
+        <button class="btn-icon" id="btn-clear-chat" title="Limpiar historial" aria-label="Limpiar conversación">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Chat Container -->
+  <main class="chat-container" id="main-content">
+
+    <!-- Welcome Banner (visible solo cuando no hay mensajes) -->
+    <section class="welcome-banner" id="welcome-banner" aria-label="Bienvenida">
+      <div class="welcome-icon" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="16" fill="url(#grad-welcome)"/>
+          <path d="M16 24a8 8 0 1 1 16 0 8 8 0 0 1-16 0z" fill="white" opacity="0.2"/>
+          <path d="M24 19v10M19 24h10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+          <defs>
+            <linearGradient id="grad-welcome" x1="0" y1="0" x2="48" y2="48">
+              <stop offset="0%" stop-color="#818CF8"/>
+              <stop offset="100%" stop-color="#4F46E5"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <h2 class="welcome-title">¡Hola! Soy tu asistente de RRHH</h2>
+      <p class="welcome-desc">Puedo ayudarte con dudas sobre políticas de empresa, trámites de CCSS, beneficios, vacaciones y más. ¿En qué te puedo ayudar hoy?</p>
+      <div class="quick-questions" role="list" aria-label="Preguntas frecuentes">
+        <button class="quick-chip" role="listitem" data-question="¿Cuántos días de vacaciones tengo disponibles?">📅 Días de vacaciones</button>
+        <button class="quick-chip" role="listitem" data-question="¿Cómo tramito una incapacidad en la CCSS?">🏥 Trámite de incapacidad</button>
+        <button class="quick-chip" role="listitem" data-question="¿Cuál es la política de teletrabajo?">🏠 Política de teletrabajo</button>
+        <button class="quick-chip" role="listitem" data-question="¿Cuáles son los beneficios de salud disponibles?">💊 Beneficios de salud</button>
+      </div>
+    </section>
+
+    <!-- Messages Area -->
+    <section class="messages-area" id="messages-area" role="log" aria-live="polite" aria-label="Conversación">
+      <!-- Los mensajes se insertan dinámicamente aquí -->
+    </section>
+
+  </main>
+
+  <!-- Input Area -->
+  <footer class="input-area" role="contentinfo">
+    <div class="input-wrapper">
+      <textarea
+        id="user-input"
+        class="message-input"
+        placeholder="Escribe tu pregunta aquí..."
+        rows="1"
+        maxlength="1000"
+        aria-label="Escribe tu mensaje"
+        aria-describedby="char-counter"
+      ></textarea>
+      <div class="input-controls">
+        <span class="char-counter" id="char-counter" aria-live="polite">0/1000</span>
+        <button class="send-btn" id="send-btn" aria-label="Enviar mensaje" title="Enviar (Enter)">
+          <svg class="send-icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 2L15 22 11 13 2 9l20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <p class="input-hint">Presiona <kbd>Enter</kbd> para enviar · <kbd>Shift+Enter</kbd> para nueva línea · Conversación guardada automáticamente</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

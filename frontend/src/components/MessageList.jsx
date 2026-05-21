@@ -5,7 +5,7 @@ import { useEffect, useRef } from 'react';
 import MessageBubble from './MessageBubble.jsx';
 import TypingIndicator from './TypingIndicator.jsx';
 
-export default function MessageList({ messages = [], isTyping = false, onEscalate }) {
+export default function MessageList({ messages = [], isTyping = false }) {
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function MessageList({ messages = [], isTyping = false, onEscalat
   return (
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3" role="log" aria-live="polite">
       {messages.map((msg) => (
-        <MessageBubble key={msg.ts} message={msg} onEscalate={onEscalate} />
+        <MessageBubble key={msg.ts} message={msg} />
       ))}
       {isTyping && <TypingIndicator />}
       <div ref={bottomRef} />

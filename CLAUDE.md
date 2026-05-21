@@ -35,6 +35,11 @@ vestimenta, acoso, etc.) y escala a una persona cuando no sabe.
 El proyecto React vive en `hr-assistant/`. Todo lo que se refiera a `src/`,
 `package.json`, `vite.config.js`, etc. está adentro de esa subcarpeta.
 
+El backend es un servidor Express + RAG separado (no n8n). Vive en otra
+carpeta y lo mantiene otra persona del equipo. El frontend solo lo consume
+vía HTTP. Cuando el backend esté corriendo en local, la URL típica es
+`http://localhost:3000`.
+
 ## STACK Y ARQUITECTURA
 
 - React 18 + Vite (JSX puro, sin TypeScript)
@@ -54,7 +59,7 @@ src/
 │   ├── MessageBubble.jsx
 │   ├── SourceCitation.jsx
 │   ├── ChatInput.jsx
-│   ├── EscalateButton.jsx
+│   ├── EscalationBanner.jsx
 │   ├── TypingIndicator.jsx
 │   └── admin/
 │       ├── AdminPanel.jsx
@@ -72,42 +77,66 @@ src/
 └── main.jsx
 ```
 
-## CONTRATO DEL WEBHOOK DE n8n
+## CONTRATO DEL BACKEND
 
-Todo el frontend habla con n8n a través de estos dos endpoints:
+El backend es un servidor Express con RAG (búsqueda por similitud del coseno
+sobre embeddings de OpenAI) y Claude como cerebro. Expone dos endpoints.
+La URL base se configura en `VITE_BACKEND_URL` (ej. `http://localhost:3000`).
 
-### POST `${VITE_N8N_WEBHOOK_URL}/chat`
+### POST `${VITE_BACKEND_URL}/chat`
 
 Request:
 ```json
-{ "pregunta": "string" }
-```
-
-Response éxito:
-```json
 {
-  "respuesta": "string",
-  "fuente": { "doc": "RH-13", "seccion": "6.3", "pagina": 8 },
-  "confianza": 0.87
+  "message": "string",
+  "history": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ]
 }
 ```
 
-Response sin match en políticas:
+Response éxito (respuesta normal):
 ```json
-{ "respuesta": null, "puede_escalar": true }
+{
+  "reply": "string",
+  "escalated": false,
+  "sources": ["politica-vacaciones.pdf", "manual-rrhh.pdf"],
+  "topScore": 0.87
+}
 ```
 
-### POST `${VITE_N8N_WEBHOOK_URL}/escalate`
-
-Request:
+Response cuando el backend decide escalar a un humano:
 ```json
-{ "pregunta": "string", "historial": [{ "role": "user|bot", "text": "..." }] }
+{
+  "reply": "Entiendo tu consulta y quiero asegurarme... (mensaje pre-armado)",
+  "escalated": true,
+  "sources": []
+}
 ```
+
+Notas importantes:
+- La escalación la decide **el backend solo**. El frontend no llama a un
+  endpoint aparte para escalar; recibe `escalated: true` en la respuesta
+  normal de `/chat` y debe renderizar un banner visual.
+- `sources` es un array de strings con nombres de archivo PDF, no un objeto
+  con `doc/seccion/pagina`.
+- `history` debe ir en el formato `{ role: "user"|"assistant", content }`,
+  igual que la API de OpenAI/Anthropic.
+
+### GET `${VITE_BACKEND_URL}/health`
 
 Response:
 ```json
-{ "ok": true }
+{
+  "status": "ok",
+  "chunksLoaded": 142,
+  "model": "claude-...",
+  "timestamp": "2026-05-21T..."
+}
 ```
+
+Útil para verificar que el backend está vivo y tiene embeddings cargados.
 
 ## CONVENCIONES DE CÓDIGO
 
@@ -155,7 +184,7 @@ Para cada tarea que te pidan:
 - No agregás librerías sin justificar.
 - No tocás archivos fuera del scope de la tarea.
 - No escribís tests automáticos (esta vez no).
-- No conectás a APIs reales sin que la URL del webhook esté confirmada.
+- No conectás al backend sin que la URL esté confirmada y `/health` responda OK.
 - No inventás endpoints ni respuestas fuera del contrato de arriba.
 - No usás TypeScript ni Sass.
 - No usás `any` ni `// @ts-ignore` (no aplica, no hay TS, pero por las dudas).
