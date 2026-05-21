@@ -219,7 +219,7 @@ const Logo = ({ size = 28 }) => (
       </g>
       <g fill="currentColor">
         <text x="245" y="155" fontFamily="'Segoe UI', var(--font-display), 'DM Sans', sans-serif" fontWeight="400" fontSize="115">GenteCR</text>
-        <text x="250" y="198" fontFamily="'Segoe UI', var(--font-display), 'DM Sans', sans-serif" fontWeight="600" fontSize="19" letterSpacing="1">MENOS PANTALLAS, MÁS CONVERSACIONES</text>
+        <text x="250" y="200" fontFamily="'Segoe UI', var(--font-display), 'DM Sans', sans-serif" fontWeight="600" fontSize="29" letterSpacing="1">MENOS PANTALLAS, MÁS CONVERSACIONES</text>
       </g>
     </svg>
   </div>
