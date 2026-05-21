@@ -1,0 +1,21 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Garnier HR Assistant" [level=1] [ref=e6]
+      - link "← Volver al inicio" [ref=e7] [cursor=pointer]:
+        - /url: /
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - log [ref=e11]:
+        - paragraph [ref=e15]: Hola, soy el asistente de RH de Garnier & Garnier. ¿En qué puedo ayudarte hoy?
+        - paragraph [ref=e23]: ¿Cuántos días de vacaciones tengo?
+        - generic [ref=e26]:
+          - paragraph [ref=e27]: Tenés 12 días hábiles de vacaciones al año tras cumplir 50 semanas de servicio continuo. Se solicitan con al menos 15 días de anticipación vía el portal interno.
+          - paragraph [ref=e28]: "Fuente: RH-01, sección 3.2, pág. 4"
+        - paragraph [ref=e32]: ¿Cómo solicito teletrabajo?
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: Podés trabajar hasta 3 días por semana desde casa, previo acuerdo escrito con tu jefatura. La empresa provee equipo y un subsidio de conexión de hasta ₡25.000 mensuales.
+          - paragraph [ref=e37]: "Fuente: RH-13, sección 2.1, pág. 6"
+      - generic [ref=e17]:
+        - textbox "Escribí tu pregunta sobre políticas de RH..." [ref=e18]
+        - button "Enviar" [disabled] [ref=e19]

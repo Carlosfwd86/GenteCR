@@ -1,0 +1,21 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - heading "Garnier HR Assistant" [level=1] [ref=e6]
+      - link "← Volver al inicio" [ref=e7] [cursor=pointer]:
+        - /url: /
+  - main [ref=e8]:
+    - generic [ref=e9]:
+      - log [ref=e11]:
+        - paragraph [ref=e15]: Hola, soy el asistente de RH de Garnier & Garnier. ¿En qué puedo ayudarte hoy?
+        - paragraph [ref=e19]: ¿Cómo solicito teletrabajo?
+        - generic [ref=e22]:
+          - paragraph [ref=e23]: Podés trabajar hasta 3 días por semana desde casa, previo acuerdo escrito con tu jefatura. La empresa provee equipo y un subsidio de conexión de hasta ₡25.000 mensuales.
+          - paragraph [ref=e24]: "Fuente: RH-13, sección 2.1, pág. 6"
+        - paragraph [ref=e28]: ¿Cuánto pagan de aguinaldo este año?
+        - generic [ref=e30]:
+          - paragraph [ref=e32]: No encontré una respuesta para tu consulta. ¿Querés que un agente de RH te contacte?
+          - paragraph [ref=e33]: ✓ Escalado a RH
+      - generic [ref=e35]:
+        - textbox "Escribí tu pregunta sobre políticas de RH..." [ref=e36]
+        - button "Enviar" [disabled] [ref=e37]

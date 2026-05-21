@@ -1,0 +1,5 @@
+<!-- Placeholder del logo. Reemplazar por el SVG real de Garnier & Garnier. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" rx="12" fill="var(--color-primary, #0d6e3f)"/>
+  <text x="50%" y="55%" text-anchor="middle" fill="#fff" font-family="system-ui, sans-serif" font-size="22" font-weight="700">G</text>
+</svg>

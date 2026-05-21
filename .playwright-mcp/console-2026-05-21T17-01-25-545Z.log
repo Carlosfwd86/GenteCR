@@ -1,0 +1,66 @@
+[     110ms] [INFO] %cDownload the React DevTools for a better development experience: https://reactjs.org/link/react-devtools font-weight:bold @ http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:21548
+[  486818ms] [ERROR] Warning: React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://reactjs.org/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+%s ChatWindow 1. useState                   useState
+2. useState                   useEffect
+ 
+    at ChatWindow (http://localhost:5175/src/components/ChatWindow.jsx?t=1779383372097:24:47)
+    at main
+    at div
+    at App @ http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:518
+[  486845ms] Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11676:21)
+    at updateReducer (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11725:22)
+    at updateState (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:12019:18)
+    at Object.useState (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:12751:24)
+    at useState (http://localhost:5175/node_modules/.vite/deps/chunk-REFQX4J5.js?v=d85d9562:1067:29)
+    at useChat (http://localhost:5175/src/hooks/useChat.js?t=1779383372097:21:35)
+    at ChatWindow (http://localhost:5175/src/components/ChatWindow.jsx?t=1779383372097:24:47)
+    at renderWithHooks (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11546:26)
+    at updateFunctionComponent (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:14580:28)
+    at beginWork (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:15922:22)
+[  486846ms] Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11676:21)
+    at updateReducer (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11725:22)
+    at updateState (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:12019:18)
+    at Object.useState (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:12751:24)
+    at useState (http://localhost:5175/node_modules/.vite/deps/chunk-REFQX4J5.js?v=d85d9562:1067:29)
+    at useChat (http://localhost:5175/src/hooks/useChat.js?t=1779383372097:21:35)
+    at ChatWindow (http://localhost:5175/src/components/ChatWindow.jsx?t=1779383372097:24:47)
+    at renderWithHooks (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11546:26)
+    at updateFunctionComponent (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:14580:28)
+    at beginWork (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:15922:22)
+[  486841ms] [ERROR] The above error occurred in the <ChatWindow> component:
+
+    at ChatWindow (http://localhost:5175/src/components/ChatWindow.jsx?t=1779383372097:24:47)
+    at main
+    at div
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries. @ http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:14029
+[  486849ms] Error: Rendered more hooks than during the previous render.
+    at updateWorkInProgressHook (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11676:21)
+    at updateReducer (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11725:22)
+    at updateState (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:12019:18)
+    at Object.useState (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:12751:24)
+    at useState (http://localhost:5175/node_modules/.vite/deps/chunk-REFQX4J5.js?v=d85d9562:1067:29)
+    at useChat (http://localhost:5175/src/hooks/useChat.js?t=1779383372097:21:35)
+    at ChatWindow (http://localhost:5175/src/components/ChatWindow.jsx?t=1779383372097:24:47)
+    at renderWithHooks (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:11546:26)
+    at updateFunctionComponent (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:14580:28)
+    at beginWork (http://localhost:5175/node_modules/.vite/deps/chunk-373CG7ZK.js?v=d85d9562:15922:22)
+[  500942ms] [ERROR] Warning: Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.%s 
+
+Check the render method of `MessageList`.  
+    at MessageBubble (http://localhost:5175/src/components/MessageBubble.jsx:18:41)
+    at MessageList (http://localhost:5175/src/components/MessageList.jsx:19:39)
+    at div
+    at section
+    at ChatWindow (http://localhost:5175/src/components/ChatWindow.jsx?t=1779383386351:23:57)
+    at main
+    at div
+    at App @ http://localhost:5175/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=d85d9562:61

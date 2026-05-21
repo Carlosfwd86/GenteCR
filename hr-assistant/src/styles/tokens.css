@@ -1,0 +1,14 @@
+/* Tokens de marca. Placeholders — el diseñador los ajusta. */
+:root {
+  --color-primary: #0d6e3f;
+  --color-primary-dark: #094d2c;
+  --color-bg: #f5f7f6;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-text-muted: #6b7280;
+  --color-border: #e5e7eb;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius-md: 0.75rem;
+}

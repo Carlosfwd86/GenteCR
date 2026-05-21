@@ -1,0 +1,160 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: G
+        - generic [ref=e7]: GenteCR
+      - generic [ref=e8]:
+        - link "Producto" [ref=e9] [cursor=pointer]:
+          - /url: "#producto"
+        - link "Beneficios" [ref=e10] [cursor=pointer]:
+          - /url: "#beneficios"
+        - link "Clientes" [ref=e11] [cursor=pointer]:
+          - /url: "#clientes"
+        - link "Precios" [ref=e12] [cursor=pointer]:
+          - /url: "#precios"
+      - generic [ref=e13]:
+        - button "Ingresar" [ref=e14] [cursor=pointer]
+        - button "Pedir una demo" [ref=e15] [cursor=pointer]
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e19]: Plataforma de bienestar laboral
+        - heading "Cuida a tu gente como cuidas tu negocio." [level=1] [ref=e21]:
+          - text: Cuida a tu gente
+          - text: como cuidas tu negocio.
+        - paragraph [ref=e22]: GenteCR conecta encuestas de Google Forms, mensajería interna y un dashboard en tiempo real para que los líderes vean —y respondan— cómo se siente realmente su equipo.
+        - generic [ref=e23]:
+          - button "Pedir una demo" [ref=e24] [cursor=pointer]:
+            - text: Pedir una demo
+            - img [ref=e25]
+          - button "Ver el dashboard" [ref=e27] [cursor=pointer]
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]: 120+
+            - generic [ref=e31]: compañías de LATAM
+          - generic [ref=e32]:
+            - generic [ref=e33]: 1.4M
+            - generic [ref=e34]: respuestas procesadas
+          - generic [ref=e35]:
+            - generic [ref=e36]: 91%
+            - generic [ref=e37]: de retención promedio
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e45]: app.gentecr.com/dashboard
+          - generic [ref=e46]:
+            - generic [ref=e47]:
+              - generic [ref=e48]:
+                - generic [ref=e49]: Satisfacción promedio
+                - generic [ref=e50]: 3.8/5
+              - generic [ref=e51]:
+                - img [ref=e52]
+                - text: "+0.2"
+            - img [ref=e55]
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - generic [ref=e62]: eNPS
+                - generic [ref=e63]: "+42"
+              - generic [ref=e64]:
+                - generic [ref=e65]: Tasa de respuesta
+                - generic [ref=e66]: 85%
+              - generic [ref=e67]:
+                - generic [ref=e68]: En riesgo
+                - generic [ref=e69]: "3"
+              - generic [ref=e70]:
+                - generic [ref=e71]: Personas activas
+                - generic [ref=e72]: "48"
+        - generic [ref=e73]:
+          - generic [ref=e74]:
+            - generic [ref=e75]: SR
+            - generic [ref=e76]: Sofía Rojas
+            - generic [ref=e77]: 2.1/5
+          - generic [ref=e78]: "\"Sigo esperando feedback de la última review. Me ayudaría tener claridad.\""
+          - generic [ref=e79]:
+            - button "Mensaje" [ref=e80] [cursor=pointer]:
+              - img [ref=e81]
+              - text: Mensaje
+            - button "Agendar" [ref=e83] [cursor=pointer]:
+              - img [ref=e84]
+              - text: Agendar
+    - generic [ref=e87]:
+      - generic [ref=e88]: Confían en GenteCR
+      - generic [ref=e89]: MORADO
+      - generic [ref=e90]: Pulpe
+      - generic [ref=e91]: Frondex
+      - generic [ref=e92]: Crater Labs
+      - generic [ref=e93]: Mejorito
+      - generic [ref=e94]: Tica & Co
+    - generic [ref=e95]:
+      - generic [ref=e96]: Cómo funciona
+      - heading "Tres cosas que tu equipo ya quería antes de que lo notaras." [level=2] [ref=e97]
+      - generic [ref=e98]:
+        - generic [ref=e99]:
+          - img [ref=e101]
+          - heading "Pulso semanal automático" [level=3] [ref=e103]
+          - paragraph [ref=e104]: Envía un Google Form cada lunes. Las respuestas se consolidan en GenteCR sin pegar URLs ni descargar CSV.
+        - generic [ref=e105]:
+          - img [ref=e107]
+          - heading "Alertas humanas, no spam" [level=3] [ref=e109]
+          - paragraph [ref=e110]: Detectamos baja satisfacción, picos de carga y silencios prolongados. Solo te avisamos cuando vale la pena actuar.
+        - generic [ref=e111]:
+          - img [ref=e113]
+          - heading "Conversación bidireccional" [level=3] [ref=e115]
+          - paragraph [ref=e116]: Anuncia, comenta, reacciona. Lo que antes era un email perdido ahora es una conversación con tu equipo.
+    - generic [ref=e118]:
+      - img [ref=e119]
+      - paragraph [ref=e121]: "\"Antes esperábamos al exit-interview para entender qué pasaba. Con GenteCR escuchamos al equipo cada lunes.\""
+      - generic [ref=e122]:
+        - generic [ref=e123]: AV
+        - generic [ref=e124]:
+          - generic [ref=e125]: Andrea Vargas
+          - generic [ref=e126]: People Lead
+    - generic [ref=e128]:
+      - generic [ref=e129]:
+        - heading "Empieza esta semana. El próximo lunes el equipo te lo agradece." [level=2] [ref=e130]:
+          - text: Empieza esta semana.
+          - text: El próximo lunes el equipo te lo agradece.
+        - generic [ref=e131]:
+          - button "Pedir una demo" [ref=e132] [cursor=pointer]:
+            - text: Pedir una demo
+            - img [ref=e133]
+          - button "Ver el dashboard" [ref=e135] [cursor=pointer]
+      - list [ref=e137]:
+        - listitem [ref=e138]:
+          - img [ref=e140]
+          - generic [ref=e142]: Integración con Google Forms en 5 minutos
+        - listitem [ref=e143]:
+          - img [ref=e145]
+          - generic [ref=e147]: Hasta 200 personas en el plan Inicial
+        - listitem [ref=e148]:
+          - img [ref=e150]
+          - generic [ref=e152]: Onboarding asistido por una persona real
+        - listitem [ref=e153]:
+          - img [ref=e155]
+          - generic [ref=e157]: Datos en LATAM, no salen de la región
+    - generic [ref=e158]:
+      - generic [ref=e159]: © 2026 GenteCR · Hecho en Costa Rica con cariño.
+      - generic [ref=e160]:
+        - generic [ref=e161]: Privacidad
+        - generic [ref=e162]: Términos
+        - generic [ref=e163]: hola@gentecr.com
+  - button "Pregunta a GenteCR" [active] [ref=e164] [cursor=pointer]:
+    - img [ref=e167]
+  - dialog "Asistente GenteCR" [ref=e173]:
+    - generic [ref=e174]:
+      - generic [ref=e175]:
+        - img [ref=e177]
+        - generic [ref=e179]: Asistente GenteCR
+        - link "Abrir en página completa" [ref=e180] [cursor=pointer]:
+          - /url: /chat/
+          - img [ref=e181]
+        - button "Cerrar chat" [ref=e184] [cursor=pointer]:
+          - img [ref=e185]
+      - iframe [ref=e188]:
+        - main [ref=f2e4]:
+          - generic [ref=f2e5]:
+            - paragraph [ref=f2e10]: Hola, soy el asistente de RH de Garnier & Garnier. ¿En qué puedo ayudarte hoy?
+            - generic [ref=f2e11]:
+              - generic [ref=f2e12]:
+                - textbox "Escribí tu pregunta sobre políticas de RH..." [ref=f2e13]
+                - button "Enviar" [disabled] [ref=f2e14]
+              - button "Esto no responde — escalar a RH" [ref=f2e15] [cursor=pointer]
