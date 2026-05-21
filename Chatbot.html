@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Asistente GenteCR · Chat</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    body { background: var(--bg-2); }
+    .chat-shell {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      height: 100vh;
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--paper);
+      border-left: 1px solid var(--line);
+      border-right: 1px solid var(--line);
+    }
+    .chat-side {
+      border-right: 1px solid var(--line);
+      background: var(--bg);
+      display: flex; flex-direction: column;
+      min-height: 0;
+    }
+    .chat-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 10px;
+      background: var(--paper);
+      flex-shrink: 0;
+    }
+    .chat-head .name {
+      font-family: var(--font-display);
+      font-size: 14.5px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .chat-head .status {
+      font-size: 11px; color: var(--ink-3);
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .chat-bot-avatar {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      background: var(--brand-deep);
+      color: #FFF;
+      display: grid; place-items: center;
+      font-family: var(--font-display); font-weight: 700; font-size: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+      flex-shrink: 0;
+    }
+    .convo-list { padding: 8px; overflow-y: auto; flex: 1; }
+    .convo-item {
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      color: var(--ink-2);
+      cursor: pointer;
+      margin-bottom: 2px;
+      display: flex; align-items: flex-start; gap: 8px;
+      transition: background .12s;
+    }
+    .convo-item:hover { background: var(--bg-2); }
+    .convo-item.active { background: var(--brand-soft); color: var(--brand-deep); font-weight: 500; }
+    .convo-item .ico {
+      width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+      display: grid; place-items: center; margin-top: 1px;
+      background: var(--mist); color: var(--ink-2);
+      font-size: 10px;
+    }
+    .convo-item.active .ico { background: var(--brand-mid); color: var(--brand-deep); }
+    .convo-item .when { margin-left: auto; font-size: 10.5px; color: var(--ink-3); font-family: var(--font-mono); }
+    .side-section {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.10em;
+      text-transform: uppercase; color: var(--ink-3);
+      padding: 12px 10px 4px;
+    }
+
+    .chat-main {
+      display: flex; flex-direction: column;
+      min-height: 0;
+    }
+    .msgs {
+      flex: 1; overflow-y: auto;
+      padding: 24px 28px;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .day-sep {
+      text-align: center; font-size: 10.5px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--ink-3);
+      margin: 8px 0;
+      position: relative;
+    }
+    .day-sep::before, .day-sep::after {
+      content: ""; position: absolute; top: 50%;
+      width: calc(50% - 60px); height: 1px; background: var(--line);
+    }
+    .day-sep::before { left: 0; } .day-sep::after { right: 0; }
+
+    .msg { display: flex; gap: 10px; max-width: 78%; }
+    .msg.bot { align-self: flex-start; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .msg .avatar { flex-shrink: 0; }
+    .msg .bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      letter-spacing: -0.003em;
+      box-shadow: var(--shadow-sm);
+    }
+    .msg.bot .bubble {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-top-left-radius: 4px;
+      color: var(--ink);
+    }
+    .msg.user .bubble {
+      background: var(--brand);
+      color: #FFF;
+      border-top-right-radius: 4px;
+    }
+    .msg .meta {
+      font-size: 10.5px; color: var(--ink-3); margin-top: 4px;
+      font-family: var(--font-mono);
+    }
+    .msg.user .meta { text-align: right; }
+
+    .typing {
+      display: inline-flex; gap: 3px; align-items: center;
+      padding: 4px 0;
+    }
+    .typing span {
+      width: 6px; height: 6px; border-radius: 999px;
+      background: var(--ink-3);
+      animation: typ 1.2s infinite ease-in-out;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes typ {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .suggest-row {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin-top: 10px;
+    }
+    .suggest-chip {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--paper);
+      font-size: 12px;
+      color: var(--ink-2);
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .12s;
+    }
+    .suggest-chip:hover {
+      border-color: var(--brand);
+      background: var(--brand-soft);
+      color: var(--brand-deep);
+    }
+
+    .composer {
+      padding: 14px 22px 22px;
+      border-top: 1px solid var(--line);
+      background: var(--paper);
+      flex-shrink: 0;
+    }
+    .composer-inner {
+      display: flex; align-items: flex-end; gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--mist);
+      border-radius: 10px;
+      padding: 8px 8px 8px 14px;
+      transition: border-color .12s, box-shadow .12s;
+    }
+    .composer-inner:focus-within {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(30,64,175,0.12);
+    }
+    .composer textarea {
+      flex: 1;
+      border: 0; outline: 0; background: transparent;
+      font: inherit; resize: none;
+      color: var(--ink);
+      padding: 6px 0;
+      max-height: 140px;
+      line-height: 1.5;
+    }
+    .composer .send {
+      width: 32px; height: 32px;
+      border-radius: 7px;
+      border: 0;
+      background: var(--brand);
+      color: #FFF;
+      cursor: pointer;
+      display: grid; place-items: center;
+      transition: background .12s, transform .05s;
+    }
+    .composer .send:hover:not(:disabled) { background: var(--brand-deep); }
+    .composer .send:disabled { background: var(--mist-2); cursor: not-allowed; }
+    .composer .send:active { transform: scale(0.96); }
+
+    .composer-hint {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--ink-3);
+    }
+    .composer-hint kbd {
+      font-family: var(--font-mono);
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 1px 5px;
+      font-size: 10px;
+    }
+
+    /* Action cards inside bot bubble */
+    .card-action {
+      margin-top: 10px;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 12.5px;
+    }
+    .card-action .label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px;
+    }
+    .card-action .row-data {
+      display: flex; justify-content: space-between; padding: 4px 0;
+      border-bottom: 1px solid var(--line-2);
+    }
+    .card-action .row-data:last-child { border-bottom: 0; }
+    .card-action .row-data b { font-family: var(--font-mono); font-weight: 500; }
+
+    .back-link {
+      position: fixed; top: 16px; left: 16px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 6px;
+      background: var(--paper); border: 1px solid var(--line);
+      font-size: 12px; font-weight: 500; color: var(--ink-2);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      z-index: 20;
+      transition: background .12s;
+    }
+    .back-link:hover { background: var(--bg-2); color: var(--ink); }
+
+    @media (max-width: 760px) {
+      .chat-side { display: none; }
+      .chat-shell { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="Dashboard RRHH.html">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5m0 0 7-7m-7 7 7 7"/></svg>
+    Volver al dashboard
+  </a>
+
+  <div class="chat-shell">
+    <!-- Sidebar -->
+    <aside class="chat-side">
+      <div class="chat-head" style="padding: 14px 14px;">
+        <div class="chat-bot-avatar">G</div>
+        <div>
+          <div class="name">Asistente GenteCR</div>
+          <div class="status">
+            <span class="dot" style="background:#15803D"></span>
+            En línea · responde en segundos
+          </div>
+        </div>
+      </div>
+      <div class="convo-list">
+        <div class="side-section">Hoy</div>
+        <div class="convo-item active">
+          <span class="ico">●</span>
+          <div style="flex:1; min-width:0">
+            <div style="font-weight:500">Conversación nueva</div>
+            <div style="font-size:11px; color:var(--ink-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">¿En qué puedo ayudarte?</div>
+          </div>
+          <span class="when">10:42</span>
+        </div>
+        <div class="convo-item">
+          <span class="ico">📊</span>
+          <div style="flex:1; min-width:0">
+            <div>Resumen del pulse de mayo</div>
+            <div style="font-size:11px; color:var(--ink-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Comparativa por equipo y deltas mes a mes</div>
+          </div>
+          <span class="when">09:14</span>
+        </div>
+
+        <div class="side-section">Ayer</div>
+        <div class="convo-item">
+          <span class="ico">👥</span>
+          <div style="flex:1; min-width:0">
+            <div>Personas en riesgo · Ops</div>
+            <div style="font-size:11px; color:var(--ink-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">3 personas a vigilar esta semana</div>
+          </div>
+          <span class="when">17:22</span>
+        </div>
+        <div class="convo-item">
+          <span class="ico">📝</span>
+          <div style="flex:1; min-width:0">
+            <div>Redactar anuncio nuevo</div>
+            <div style="font-size:11px; color:var(--ink-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Beneficio remoto - tono cálido</div>
+          </div>
+          <span class="when">15:08</span>
+        </div>
+
+        <div class="side-section">Esta semana</div>
+        <div class="convo-item">
+          <span class="ico">🎯</span>
+          <div style="flex:1; min-width:0">
+            <div>Sugerir preguntas de pulse</div>
+            <div style="font-size:11px; color:var(--ink-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Carga de trabajo + reconocimiento</div>
+          </div>
+          <span class="when">lun</span>
+        </div>
+        <div class="convo-item">
+          <span class="ico">🎤</span>
+          <div style="flex:1; min-width:0">
+            <div>Preparar 1:1 con Sofía R.</div>
+            <div style="font-size:11px; color:var(--ink-3); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Temas + datos recientes</div>
+          </div>
+          <span class="when">lun</span>
+        </div>
+      </div>
+      <div style="padding: 12px; border-top: 1px solid var(--line); background: var(--paper);">
+        <button class="btn" style="width:100%; justify-content:center;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          Nueva conversación
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main chat -->
+    <main class="chat-main">
+      <div class="chat-head">
+        <div class="chat-bot-avatar">G</div>
+        <div style="flex:1">
+          <div class="name">Asistente GenteCR</div>
+          <div class="status">
+            <span class="dot" style="background:#15803D"></span>
+            Entrenado con tus datos · privado al equipo de People
+          </div>
+        </div>
+        <button class="btn sm ghost" title="Limpiar conversación">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z"/></svg>
+        </button>
+        <button class="btn sm ghost" title="Opciones">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="6" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="12" cy="18" r="1.2"/></svg>
+        </button>
+      </div>
+
+      <div class="msgs" id="msgs">
+        <div class="day-sep">Hoy · 10:42</div>
+
+        <div class="msg bot">
+          <div class="chat-bot-avatar" style="width:30px; height:30px; font-size:13px;">G</div>
+          <div>
+            <div class="bubble">
+              Hola Andrea 👋 Soy el asistente de GenteCR. Tengo acceso a las encuestas, anuncios y métricas del equipo. ¿En qué te ayudo hoy?
+              <div class="suggest-row" id="suggestions">
+                <button class="suggest-chip" data-q="¿Cómo le fue al equipo esta semana?">📊 ¿Cómo le fue al equipo esta semana?</button>
+                <button class="suggest-chip" data-q="¿Quién está en riesgo?">🚨 ¿Quién está en riesgo?</button>
+                <button class="suggest-chip" data-q="Redacta un anuncio sobre el nuevo beneficio remoto">✍️ Redactar un anuncio</button>
+                <button class="suggest-chip" data-q="Sugiere 3 preguntas para el pulse de la próxima semana">🎯 Preguntas para el pulse</button>
+              </div>
+            </div>
+            <div class="meta">Asistente · 10:42</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="composer">
+        <div class="composer-inner">
+          <textarea id="ta" rows="1" placeholder="Escribe tu mensaje… puedes pedirme resumen del pulse, redactar anuncios, ver alertas, etc."></textarea>
+          <button class="send" id="send" disabled title="Enviar (Enter)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7Z"/></svg>
+          </button>
+        </div>
+        <div class="composer-hint">
+          <span><kbd>↵</kbd> enviar · <kbd>⇧↵</kbd> nueva línea</span>
+          <span>🔒 Respuestas privadas, no salen de tu organización</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const msgs = document.getElementById('msgs');
+    const ta = document.getElementById('ta');
+    const sendBtn = document.getElementById('send');
+
+    const ts = () => {
+      const d = new Date();
+      return String(d.getHours()).padStart(2,'0') + ":" + String(d.getMinutes()).padStart(2,'0');
+    };
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    function addUser(text) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg user';
+      wrap.innerHTML = `
+        <span class="avatar" style="background:#EFF6FF; color:#1E3A8A">AV</span>
+        <div>
+          <div class="bubble">${escapeHtml(text)}</div>
+          <div class="meta">Andrea · ${ts()}</div>
+        </div>`;
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function addBot(html, opts = {}) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      wrap.innerHTML = `
+        <div class="chat-bot-avatar" style="width:30px; height:30px; font-size:13px;">G</div>
+        <div>
+          <div class="bubble">${html}</div>
+          <div class="meta">Asistente · ${ts()}</div>
+        </div>`;
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    function showTyping() {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg bot';
+      wrap.id = 'typing';
+      wrap.innerHTML = `
+        <div class="chat-bot-avatar" style="width:30px; height:30px; font-size:13px;">G</div>
+        <div>
+          <div class="bubble"><div class="typing"><span></span><span></span><span></span></div></div>
+        </div>`;
+      msgs.appendChild(wrap);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+    function hideTyping() {
+      const t = document.getElementById('typing');
+      if (t) t.remove();
+    }
+
+    function reply(userText) {
+      const q = userText.toLowerCase();
+      let html;
+      if (q.includes('semana') || q.includes('pulse') || q.includes('cómo le fue') || q.includes('como le fue')) {
+        html = `
+          El pulse de esta semana cerró con <b>3.8/5</b> de satisfacción promedio (subió <b>+0.2</b> vs el mes anterior, séptima semana al alza).
+          <div class="card-action">
+            <div class="label">Pulse · Mayo S3 · 41/48 respuestas</div>
+            <div class="row-data"><span>Satisfacción</span><b>3.8 / 5</b></div>
+            <div class="row-data"><span>eNPS interno</span><b>+42</b></div>
+            <div class="row-data"><span>Carga reportada</span><b>73%</b></div>
+            <div class="row-data"><span>Personas en riesgo</span><b>3</b></div>
+          </div>
+          <div class="suggest-row">
+            <button class="suggest-chip" data-q="Muéstrame las respuestas crudas">Ver respuestas crudas</button>
+            <button class="suggest-chip" data-q="¿Qué equipos bajaron?">¿Qué equipos bajaron?</button>
+          </div>`;
+      } else if (q.includes('riesgo') || q.includes('alerta') || q.includes('baj')) {
+        html = `
+          Hay <b>3 personas en riesgo</b> esta semana (satisfacción debajo de 2.6) y otras 5 a vigilar.
+          <div class="card-action">
+            <div class="label">En riesgo — semana actual</div>
+            <div class="row-data"><span>Sofía Rojas · Ingeniería</span><b style="color:#B91C1C">2.1</b></div>
+            <div class="row-data"><span>Hugo Picado · Operaciones</span><b style="color:#B91C1C">2.3</b></div>
+            <div class="row-data"><span>Inés Sánchez · Ventas</span><b style="color:#B91C1C">2.5</b></div>
+          </div>
+          ¿Quieres que te prepare puntos para un 1:1 con alguno de ellos, o un mensaje directo?
+          <div class="suggest-row">
+            <button class="suggest-chip" data-q="Prepara puntos para 1:1 con Sofía">Preparar 1:1 con Sofía</button>
+            <button class="suggest-chip" data-q="Envíale un mensaje a Hugo">Mensaje a Hugo</button>
+          </div>`;
+      } else if (q.includes('anuncio') || q.includes('redact') || q.includes('escrib')) {
+        html = `
+          Aquí tienes un borrador con un tono cálido y profesional:
+          <div class="card-action" style="background:var(--paper)">
+            <div class="label">Borrador · Beneficio remoto</div>
+            <div style="line-height:1.55; color:var(--ink); margin-top:4px;">
+              <b>Beneficio nuevo: 4 días al mes 100% remoto</b><br><br>
+              Sabemos que el balance importa, y queremos que tu trabajo se sienta así. Desde junio, cada persona del equipo puede tomar hasta 4 días al mes 100% remotos, sin necesidad de pedir permiso anticipado — solo pongan el día en el calendario y avisen al equipo.<br><br>
+              Gracias por hacer de GenteCR el lugar que es. 🙌
+            </div>
+          </div>
+          <div class="suggest-row">
+            <button class="suggest-chip" data-q="Hazlo más formal">Más formal</button>
+            <button class="suggest-chip" data-q="Hazlo más breve">Más breve</button>
+            <button class="suggest-chip" data-q="Publicar en anuncios">Publicar</button>
+          </div>`;
+      } else if (q.includes('pregunta') || q.includes('pulse') && q.includes('próxim')) {
+        html = `
+          Tres preguntas que vale la pena probar la próxima semana, basadas en lo que vi en los comentarios abiertos:
+          <div class="card-action">
+            <div class="label">Sugerencias · Pulse semanal</div>
+            <div style="line-height:1.6;">
+              <b>1.</b> ¿Recibiste feedback útil esta semana? (likert 1–5)<br>
+              <b>2.</b> ¿Sientes que tu carga de trabajo es sostenible? (likert 1–5)<br>
+              <b>3.</b> ¿Hay algo que tu manager debería saber esta semana? (texto libre)
+            </div>
+          </div>
+          La #1 conecta con el comentario que dejó Tomás sobre feedback pendiente. ¿Las uso para el formulario del lunes?
+          <div class="suggest-row">
+            <button class="suggest-chip" data-q="Sí, prepara el formulario">Sí, prepara el formulario</button>
+            <button class="suggest-chip" data-q="Cambia la #2">Cambia la #2</button>
+          </div>`;
+      } else if (q.includes('hola') || q.includes('hi') || q.includes('hello') || q.trim().length < 10) {
+        html = `¡Hola! Cuéntame en qué te ayudo. Puedo darte resúmenes del pulse, alertas de personas en riesgo, redactar anuncios o sugerir preguntas para la próxima encuesta.`;
+      } else {
+        html = `
+          Tomé nota de tu pregunta. Para responderla bien necesito mirar los datos del último pulse y los anuncios recientes — dame un segundo y te traigo un resumen.
+          <div class="suggest-row">
+            <button class="suggest-chip" data-q="¿Cómo le fue al equipo esta semana?">📊 Resumen del pulse</button>
+            <button class="suggest-chip" data-q="¿Quién está en riesgo?">🚨 Alertas</button>
+            <button class="suggest-chip" data-q="Redacta un anuncio">✍️ Redactar anuncio</button>
+          </div>`;
+      }
+      addBot(html);
+    }
+
+    function send(text) {
+      if (!text || !text.trim()) return;
+      addUser(text.trim());
+      ta.value = '';
+      autosize();
+      sendBtn.disabled = true;
+      showTyping();
+      setTimeout(() => {
+        hideTyping();
+        reply(text.trim());
+      }, 700 + Math.random() * 400);
+    }
+
+    function autosize() {
+      ta.style.height = 'auto';
+      ta.style.height = Math.min(ta.scrollHeight, 140) + 'px';
+      sendBtn.disabled = !ta.value.trim();
+    }
+
+    ta.addEventListener('input', autosize);
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        send(ta.value);
+      }
+    });
+    sendBtn.addEventListener('click', () => send(ta.value));
+
+    // Delegated handler for suggest chips
+    document.addEventListener('click', (e) => {
+      const chip = e.target.closest('.suggest-chip');
+      if (chip) send(chip.dataset.q);
+    });
+
+    ta.focus();
+  </script>
+</body>
+</html>
